@@ -8,7 +8,6 @@ from google.oauth2 import service_account
 import warnings
 warnings.filterwarnings("ignore")
 
-
 credentials = service_account.Credentials.from_service_account_info(st.secrets["gcp_service_account"])
 
 def save_dataframe_to_bigquery(df, dataset_id, table_id):

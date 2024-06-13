@@ -13,3 +13,4 @@ streamlit_folium
 streamlit_player
 google-cloud-bigquery
 google-cloud-bigquery[pandas]
+bcrypt
