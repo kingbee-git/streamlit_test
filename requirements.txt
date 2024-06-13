@@ -1,0 +1,15 @@
+numpy
+pandas
+requests
+beautifulsoup4
+lxml
+selenium
+webdriver-manager
+matplotlib
+streamlit
+streamlit-option-menu
+streamlit_pandas_profiling
+streamlit_folium
+streamlit_player
+google-cloud-bigquery
+google-cloud-bigquery[pandas]
