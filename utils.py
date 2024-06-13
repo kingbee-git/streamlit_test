@@ -41,7 +41,6 @@ def get_dataframe_from_bigquery(dataset_id, table_id):
     return df
 
 def load_data():
-    userlist = get_dataframe_from_bigquery('mido_test', 'user_test')
     orderlist = get_dataframe_from_bigquery('mido_test', 'order_test')
 
-    return userlist, orderlist
+    return orderlist

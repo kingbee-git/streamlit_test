@@ -3,6 +3,8 @@ import streamlit as st
 from streamlit_option_menu import option_menu
 
 import utils
+import home
+import orderlist
 
 import time
 import warnings
@@ -29,6 +31,11 @@ def main():
                                    "nav-link": {"font-size": "16px", "text-align":"left", "margin":"0px", "--hover-color": "#eee"},
                                    "nav-link-selected": {"background-color": "#02ab21"},
                                })
+
+    if selected == "HOME":
+        home.home()
+    elif selected == "DB":
+        orderlist.orderlist()
 
 if __name__ == "__main__":
     main()
