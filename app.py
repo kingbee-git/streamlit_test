@@ -11,36 +11,31 @@ import time
 import warnings
 warnings.filterwarnings("ignore")
 
+
 def load_users_data():
     users_data = utils.load_users_data()
-    users = {}
-    for index, row in users_data.iterrows():
-        username = row['employeeName']
-        password = row['password']
-        try:
-            hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
-            users[username] = hashed_password
-        except Exception as e:
-            print(f"Error hashing password for user {username}: {e}")
-    return users
+    return users_data
+
 
 def login(username, password):
-    users = load_users_data()
+    users_data = load_users_data()
+    users = {row['employeeName']: {'jobTitle': row['jobTitle'], 'password': row['password']} for _, row in users_data.iterrows()}
+
     if username in users:
-        stored_password = users[username]
-        try:
-            if bcrypt.checkpw(password.encode(), stored_password):
-                st.session_state['logged_in'] = True
-                st.session_state['username'] = username
-                return True
-        except Exception as e:
-            print(f"Error checking password for user {username}: {e}")
+        stored_password_plain = users[username]['password']
+        if password == stored_password_plain:
+            st.session_state['logged_in'] = True
+            st.session_state['username'] = username
+            st.session_state['jobTitle'] = users[username]['jobTitle']
+            return True
     return False
+
 
 def logout():
     st.session_state['logged_in'] = False
     st.session_state['username'] = None
     st.session_state['jobTitle'] = None
+
 
 def main():
     st.set_page_config(page_title="Mido_Plus",
@@ -55,10 +50,10 @@ def main():
         st.session_state['jobTitle'] = None
 
     if st.session_state['logged_in']:
-        st.write(f"Hello, {st.session_state['username']} ({st.session_state['jobTitle']})!")
+        st.write(f"안녕하세요. {st.session_state['username']} {st.session_state['jobTitle']}님!")
         if st.button("Logout"):
             logout()
-            st.experimental_rerun()  # 로그아웃 후 페이지 새로고침
+            st.experimental_rerun()  # Reload page after logout
 
         with st.sidebar:
             selected = option_menu("Main Menu", ["HOME", "DB", "test"],
@@ -70,7 +65,8 @@ def main():
                                    styles={
                                        "container": {"padding": "5!important", "background-color": "#fafafa"},
                                        "icon": {"color": "orange", "font-size": "25px"},
-                                       "nav-link": {"font-size": "16px", "text-align": "left", "margin": "0px", "--hover-color": "#eee"},
+                                       "nav-link": {"font-size": "16px", "text-align": "left", "margin": "0px",
+                                                    "--hover-color": "#eee"},
                                        "nav-link-selected": {"background-color": "#02ab21"},
                                    })
 
@@ -85,9 +81,10 @@ def main():
         if st.button("Login"):
             if login(username, password):
                 st.success("Logged in successfully!")
-                st.experimental_rerun()  # 로그인 후 페이지 새로고침
+                st.experimental_rerun()  # Reload page after login
             else:
                 st.error("Invalid username or password")
+
 
 if __name__ == "__main__":
     main()
