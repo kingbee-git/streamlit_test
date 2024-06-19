@@ -17,16 +17,24 @@ def load_users_data():
     for index, row in users_data.iterrows():
         username = row['employeeName']
         password = row['password']
-        hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
-        users[username] = hashed_password
+        try:
+            hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
+            users[username] = hashed_password
+        except Exception as e:
+            print(f"Error hashing password for user {username}: {e}")
     return users
 
 def login(username, password):
     users = load_users_data()
-    if username in users and bcrypt.checkpw(password.encode(), users[username]):
-        st.session_state['logged_in'] = True
-        st.session_state['username'] = username
-        return True
+    if username in users:
+        stored_password = users[username]
+        try:
+            if bcrypt.checkpw(password.encode(), stored_password):
+                st.session_state['logged_in'] = True
+                st.session_state['username'] = username
+                return True
+        except Exception as e:
+            print(f"Error checking password for user {username}: {e}")
     return False
 
 def logout():
