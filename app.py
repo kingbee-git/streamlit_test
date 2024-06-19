@@ -11,22 +11,29 @@ import time
 import warnings
 warnings.filterwarnings("ignore")
 
-# 유저 데이터 저장을 위한 임시 저장소
-users = {
-    "범모": bcrypt.hashpw("1234".encode(), bcrypt.gensalt()),
-    "형관": bcrypt.hashpw("1234".encode(), bcrypt.gensalt()),
-}
+def load_users_data():
+    users_data = utils.load_users_data()
+    users = {}
+    for index, row in users_data.iterrows():
+        username = row['employeeName']
+        hashed_password = row['password']
+        job_title = row['jobTitle']
+        users[username] = {'password': hashed_password, 'jobTitle': job_title}
+    return users
 
 def login(username, password):
-    if username in users and bcrypt.checkpw(password.encode(), users[username]):
+    users = load_users_data()
+    if username in users and bcrypt.checkpw(password.encode(), users[username]['password']):
         st.session_state['logged_in'] = True
         st.session_state['username'] = username
+        st.session_state['jobTitle'] = users[username]['jobTitle']
         return True
     return False
 
 def logout():
     st.session_state['logged_in'] = False
     st.session_state['username'] = None
+    st.session_state['jobTitle'] = None
 
 def main():
     st.set_page_config(page_title="Mido_Plus",
@@ -38,9 +45,10 @@ def main():
     if 'logged_in' not in st.session_state:
         st.session_state['logged_in'] = False
         st.session_state['username'] = None
+        st.session_state['jobTitle'] = None
 
     if st.session_state['logged_in']:
-        st.write(f"Hello, {st.session_state['username']}!")
+        st.write(f"Hello, {st.session_state['username']} ({st.session_state['jobTitle']})!")
         if st.button("Logout"):
             logout()
             st.experimental_rerun()  # 로그아웃 후 페이지 새로고침
