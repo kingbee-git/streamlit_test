@@ -43,8 +43,6 @@ def load_users_data():
     users = get_dataframe_from_bigquery('mido_test', 'users').sort_values(by='employeeNumber').reset_index(drop=True)
     users = users[['employeeName', 'jobTitle', 'password']]
 
-    st.dataframe(users)
-
     return users
 def load_orderlist_data():
     orderlist = get_dataframe_from_bigquery('mido_test', 'order_test')
