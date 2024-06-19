@@ -16,17 +16,16 @@ def load_users_data():
     users = {}
     for index, row in users_data.iterrows():
         username = row['employeeName']
-        hashed_password = row['password']
-        job_title = row['jobTitle']
-        users[username] = {'password': hashed_password, 'jobTitle': job_title}
+        password = row['password']
+        hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
+        users[username] = hashed_password
     return users
 
 def login(username, password):
     users = load_users_data()
-    if username in users and bcrypt.checkpw(password.encode(), users[username]['password']):
+    if username in users and bcrypt.checkpw(password.encode(), users[username]):
         st.session_state['logged_in'] = True
         st.session_state['username'] = username
-        st.session_state['jobTitle'] = users[username]['jobTitle']
         return True
     return False
 
