@@ -6,6 +6,8 @@ import bcrypt
 import utils
 import home
 import orderlist
+import orderlist_realtime
+import orderlist_updated
 
 import time
 import warnings
@@ -38,11 +40,21 @@ def logout():
 
 
 def main():
+
     st.set_page_config(page_title="Mido_Plus",
                        page_icon=None,
                        layout="wide",
                        initial_sidebar_state="auto",
                        menu_items=None)
+
+    st.markdown("""
+        <style>
+        .username-jobTitle {
+            font-size: 22px;
+            font-weight: bold;
+        }
+        </style>
+        """, unsafe_allow_html=True)
 
     if 'logged_in' not in st.session_state:
         st.session_state['logged_in'] = False
@@ -50,14 +62,28 @@ def main():
         st.session_state['jobTitle'] = None
 
     if st.session_state['logged_in']:
-        st.write(f"안녕하세요. {st.session_state['username']} {st.session_state['jobTitle']}님!")
-        if st.button("Logout"):
-            logout()
-            st.experimental_rerun()  # Reload page after logout
-
         with st.sidebar:
-            selected = option_menu("Main Menu", ["HOME", "DB", "test"],
-                                   icons=["house", "gear", "gear"],
+            col1, col2 = st.columns([1, 1])
+            with col1:
+                st.markdown(
+                    f"""
+                    <span class='username-jobTitle'>{st.session_state['username']} {st.session_state['jobTitle']}</span>님
+                    """,
+                    unsafe_allow_html=True
+                )
+
+            with col2:
+                if st.button("로그아웃", key="logout_button"):
+                    logout()
+                    st.experimental_rerun()
+
+            # st.write(f"안녕하세요. {st.session_state['username']} {st.session_state['jobTitle']}님!")
+            # if st.button("Logout"):
+            #     logout()
+            #     st.experimental_rerun()
+
+            selected = option_menu("Mido Plus", ["HOME", "orderlist", "orderlist_realtime", "orderlist_updated"],
+                                   icons=["house", "gear", "gear", "gear"],
                                    menu_icon="cast",
                                    default_index=0,
                                    orientation="vertical",
@@ -72,18 +98,23 @@ def main():
 
         if selected == "HOME":
             home.home()
-        elif selected == "DB":
+        elif selected == "orderlist":
             orderlist.orderlist()
+        elif selected == "orderlist_realtime":
+            orderlist_realtime.orderlist_realtime()
+        elif selected == "orderlist_updated":
+            orderlist_updated.orderlist_updated()
+
     else:
-        st.write("Please login to continue.")
-        username = st.text_input("Username")
-        password = st.text_input("Password", type="password")
-        if st.button("Login"):
+        st.write("계속하시려면 로그인하세요.")
+        username = st.text_input("이름")
+        password = st.text_input("비밀번호", type="password")
+        if st.button("로그인"):
             if login(username, password):
-                st.success("Logged in successfully!")
+                st.success("로그인에 성공하였습니다.")
                 st.experimental_rerun()  # Reload page after login
             else:
-                st.error("Invalid username or password")
+                st.error("이름 또는 비밀번호를 확인해주세요.")
 
 
 if __name__ == "__main__":

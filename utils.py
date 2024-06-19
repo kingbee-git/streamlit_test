@@ -44,6 +44,7 @@ def load_users_data():
     users = users[['employeeName', 'jobTitle', 'password']]
 
     return users
+
 def load_orderlist_data():
     orderlist = get_dataframe_from_bigquery('mido_test', 'order_test')
 
