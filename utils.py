@@ -1,7 +1,12 @@
 # -*- coding: utf-8 -*-
 import streamlit as st
 import pandas as pd
+import geopandas as gpd
+import pandas_gbq
 import json
+from shapely.geometry import Polygon
+from shapely.ops import unary_union
+from shapely import wkt
 from google.cloud import bigquery
 from google.oauth2 import service_account
 
@@ -39,6 +44,26 @@ def get_dataframe_from_bigquery(dataset_id, table_id):
 
     return df
 
+def get_geodataframe_from_bigquery(dataset_id, table_id):
+
+    # 빅쿼리 클라이언트 객체 생성
+    client = bigquery.Client(credentials=credentials)
+
+    # 쿼리 작성
+    query = f"SELECT * FROM `{dataset_id}.{table_id}`"
+
+    # 쿼리 실행
+    df = client.query(query).to_dataframe()
+
+    # 'geometry' 열의 문자열을 다각형 객체로 변환
+    df['geometry'] = df['geometry'].apply(wkt.loads)
+
+    # GeoDataFrame으로 변환
+    gdf = gpd.GeoDataFrame(df, geometry='geometry')
+    gdf.crs = "EPSG:5179"
+
+    return gdf
+
 def load_users_data():
     users = get_dataframe_from_bigquery('mido_test', 'users').sort_values(by='employeeNumber').reset_index(drop=True)
     users = users[['employeeName', 'jobTitle', 'password']]
@@ -49,3 +74,8 @@ def load_orderlist_data():
     orderlist = get_dataframe_from_bigquery('mido_test', 'order_test')
 
     return orderlist
+
+def load_region_geodata():
+    region_df = get_dataframe_from_bigquery('mido_test', 'region_df')
+
+    return region_df
