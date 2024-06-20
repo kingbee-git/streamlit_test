@@ -8,6 +8,7 @@ def orderlist():
     orderlist = utils.load_orderlist_data()
 
     st.title("Orderlist")
+    st.write(st.__version__)
 
     column = st.selectbox('필터링할 열 선택', orderlist.columns)
     search_term = st.text_input(f'{column}에서 검색할 내용 입력')
@@ -16,7 +17,7 @@ def orderlist():
         filtered_df = orderlist[orderlist[column].str.contains(search_term, case=False, na=False)]
         st.data_editor(filtered_df, num_rows="dynamic")
     else:
-        filtered_df = orderlist  # 검색어가 없으면 전체 데이터프레임을 출력
+        filtered_df = orderlist
         st.data_editor(filtered_df, num_rows="dynamic")
 
     col1, col2 = st.columns([3, 1])
