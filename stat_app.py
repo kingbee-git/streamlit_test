@@ -3,9 +3,8 @@ import streamlit as st
 
 import utils
 
-def home():
-    # 첫 번째 로우 설정
-    col1, col2 = st.columns([3, 1])  # 첫 번째 로우를 3:1 비율로 나눔
+def stat_app():
+    col1, col2 = st.columns([3, 1])
 
     with col1:
         st.header("왼쪽 컬럼")
@@ -15,8 +14,7 @@ def home():
         st.header("오른쪽 컬럼")
         st.write("여기도 다양한 내용을 추가할 수 있습니다.")
 
-    # 두 번째 로우 설정
-    col3, col4, col5 = st.columns(3)  # 두 번째 로우를 세 개의 동일한 너비로 나눔
+    col3, col4, col5 = st.columns(3)
 
     with col3:
         st.subheader("첫 번째 칼럼")

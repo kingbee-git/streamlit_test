@@ -4,11 +4,10 @@ import streamlit as st
 import utils
 
 
-def orderlist():
+def orderlist_app():
     orderlist = utils.load_orderlist_data()
 
     st.title("Orderlist")
-    st.write(st.__version__)
 
     column = st.selectbox('필터링할 열 선택', orderlist.columns)
     search_term = st.text_input(f'{column}에서 검색할 내용 입력')

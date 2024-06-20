@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 import streamlit as st
 from streamlit_option_menu import option_menu
-import bcrypt
 
 import utils
-import home
-import orderlist
-import orderlist_realtime
-import orderlist_updated
+import home_app
+import orderlist_app
+import orderlist_realtime_app
+import orderlist_updated_app
+import stat_app
 
 import time
 import warnings
@@ -63,6 +63,7 @@ def main():
 
     if st.session_state['logged_in']:
         with st.sidebar:
+
             col1, col2 = st.columns([1, 1])
             with col1:
                 st.markdown(
@@ -77,33 +78,38 @@ def main():
                     logout()
                     st.experimental_rerun()
 
-            # st.write(f"안녕하세요. {st.session_state['username']} {st.session_state['jobTitle']}님!")
-            # if st.button("Logout"):
-            #     logout()
-            #     st.experimental_rerun()
+            styles = {
+                "container": {"padding": "5!important", "background-color": "#fafafa"},
+                "icon": {"color": "orange", "font-size": "25px"},
+                "nav-link": {
+                    "font-size": "16px",
+                    "text-align": "left",
+                    "margin": "0px",
+                    "--hover-color": "#eee",
+                    "color": "#000",
+                },
+                "nav-link-selected": {"background-color": "#02ab21", "color": "#fff"},
+            }
 
-            selected = option_menu("Mido Plus", ["HOME", "orderlist", "orderlist_realtime", "orderlist_updated"],
-                                   icons=["house", "gear", "gear", "gear"],
+            selected = option_menu("Mido Plus", ["HOME", "orderlist", "orderlist_realtime", "orderlist_updated", "STAT"],
+                                   icons=["house", "gear", "gear", "gear", "gear"],
                                    menu_icon="cast",
                                    default_index=0,
                                    orientation="vertical",
                                    key='main_option',
-                                   styles={
-                                       "container": {"padding": "5!important", "background-color": "#fafafa"},
-                                       "icon": {"color": "orange", "font-size": "25px"},
-                                       "nav-link": {"font-size": "16px", "text-align": "left", "margin": "0px",
-                                                    "--hover-color": "#eee"},
-                                       "nav-link-selected": {"background-color": "#02ab21"},
-                                   })
+                                   styles=styles,
+                                   )
 
         if selected == "HOME":
-            home.home()
+            home_app.home_app()
         elif selected == "orderlist":
-            orderlist.orderlist()
+            orderlist_app.orderlist_app()
         elif selected == "orderlist_realtime":
-            orderlist_realtime.orderlist_realtime()
+            orderlist_realtime_app.orderlist_realtime_app()
         elif selected == "orderlist_updated":
-            orderlist_updated.orderlist_updated()
+            orderlist_updated_app.orderlist_updated_app()
+        elif selected == "STAT":
+            stat_app.stat_app()
 
     else:
         st.write("계속하시려면 로그인하세요.")

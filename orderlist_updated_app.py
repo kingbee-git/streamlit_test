@@ -3,5 +3,5 @@ import streamlit as st
 
 import utils
 
-def orderlist_realtime():
-    st.title("orderlist_realtime")
+def orderlist_updated_app():
+    st.title("orderlist_updated")
