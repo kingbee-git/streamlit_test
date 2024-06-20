@@ -63,19 +63,21 @@ def get_geodataframe_from_bigquery(dataset_id, table_id):
     gdf.crs = "EPSG:5179"
 
     return gdf
-
+@st.cache
 def load_users_data():
     users = get_dataframe_from_bigquery('mido_test', 'users').sort_values(by='employeeNumber').reset_index(drop=True)
     users = users[['employeeName', 'jobTitle', 'password']]
 
     return users
 
+@st.cache
 def load_orderlist_data():
     orderlist = get_dataframe_from_bigquery('mido_test', 'order_test')
 
     return orderlist
 
+@st.cache
 def load_region_geodata():
-    region_df = get_dataframe_from_bigquery('mido_test', 'region_df')
+    region_df = get_geodataframe_from_bigquery('mido_test', 'region_df')
 
     return region_df
