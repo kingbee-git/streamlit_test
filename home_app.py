@@ -7,28 +7,25 @@ from streamlit_folium import st_folium
 import utils
 
 def home_app():
-    region_df = utils.load_region_geodata()
-    region_df.crs = "EPSG:5179"
-
-    st.dataframe(region_df)
+    region_geodata = utils.load_region_geodata()
+    region_geodata.crs = "EPSG:5179"
 
     col1, col2 = st.columns([3, 1])
 
     with col1:
         # folium 지도 생성
-        map = folium.Map(location=[37.55, 128], zoom_start=8)
+        map = folium.Map(location=[36.34, 127.77], zoom_start=7)
 
         # 색상 매핑 사전 정의
         color_mapping = {
-            '지역1': 'blue',
-            '지역2': 'red',
-            '지역3': 'green',
-            '지역4': 'yellow'
+            '남기영': 'rgba(0, 0, 255, 0.9)',  # 반투명 파랑
+            '야동원': 'rgba(255, 0, 0, 0.9)',  # 반투명 빨강
+            '서인상': 'rgba(0, 255, 0, 0.9)',  # 반투명 초록
         }
 
         # GeoJson 레이어 추가
         folium.GeoJson(
-            region_df,
+            region_geodata,
             style_function=lambda feature: {
                 'fillColor': color_mapping.get(feature['properties']['지역담당자'], 'gray'),
                 'color': 'black',
@@ -39,7 +36,7 @@ def home_app():
         ).add_to(map)
 
         # 지도 출력
-        st_folium(map)
+        st_folium(map, width=700, height=500)
 
     with col2:
         st.header("오른쪽 컬럼")

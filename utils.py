@@ -4,8 +4,6 @@ import pandas as pd
 import geopandas as gpd
 import pandas_gbq
 import json
-from shapely.geometry import Polygon
-from shapely.ops import unary_union
 from shapely import wkt
 from google.cloud import bigquery
 from google.oauth2 import service_account
@@ -63,6 +61,8 @@ def get_geodataframe_from_bigquery(dataset_id, table_id):
     gdf.crs = "EPSG:5179"
 
     return gdf
+
+
 @st.cache_data
 def load_users_data():
     users = get_dataframe_from_bigquery('mido_test', 'users').sort_values(by='employeeNumber').reset_index(drop=True)
@@ -78,6 +78,6 @@ def load_orderlist_data():
 
 @st.cache_data
 def load_region_geodata():
-    region_df = get_geodataframe_from_bigquery('mido_test', 'region_df')
+    region_geodata = get_geodataframe_from_bigquery('mido_test', 'region_df')
 
-    return region_df
+    return region_geodata
