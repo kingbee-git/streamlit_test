@@ -36,7 +36,7 @@ def home_app():
         ).add_to(map)
 
         # 지도 출력
-        st_folium(map, width=700, height=500)
+        st_folium(map, width=400, height=500)
 
     with col2:
         st.header("오른쪽 컬럼")
