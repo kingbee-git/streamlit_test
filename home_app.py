@@ -14,7 +14,7 @@ def home_app():
 
     with col1:
         # folium 지도 생성
-        map = folium.Map(location=[36.34, 127.77], zoom_start=7)
+        map = folium.Map(location=[36.34, 127.77], zoom_start=6)
 
         # 색상 매핑 사전 정의
         color_mapping = {
