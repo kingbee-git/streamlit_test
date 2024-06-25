@@ -3,6 +3,7 @@ import streamlit as st
 import pandas as pd
 import geopandas as gpd
 import pandas_gbq
+from datetime import datetime, timedelta
 import json
 from shapely import wkt
 from google.cloud import bigquery
@@ -71,13 +72,62 @@ def load_users_data():
     return users
 
 @st.cache_data
+def load_QWGJK_data():
+    QWGJK_df_yesterday = get_dataframe_from_bigquery('mido_test', 'QWGJK_df_yesterday')
+    QWGJK_df_today = get_dataframe_from_bigquery('mido_test', 'QWGJK_df_today')
+
+    QWGJK_df_yesterday['회계연도'] = pd.to_datetime(QWGJK_df_yesterday['회계연도'], format='%Y').dt.strftime('%Y')
+    QWGJK_df_yesterday['집행일자'] = pd.to_datetime(QWGJK_df_yesterday['집행일자'], format='%Y%m%d').dt.strftime('%Y%m%d')
+    QWGJK_df_today['회계연도'] = pd.to_datetime(QWGJK_df_today['회계연도'], format='%Y').dt.strftime('%Y')
+    QWGJK_df_today['집행일자'] = pd.to_datetime(QWGJK_df_today['집행일자'], format='%Y%m%d').dt.strftime('%Y%m%d')
+
+    # 키워드 중요도 리스트
+    keywords = ['인조잔디', '조성사업']
+    keyword_importance = {keyword: i for i, keyword in enumerate(keywords)}
+
+    def get_importance(name):
+        for keyword, importance in keyword_importance.items():
+            if keyword in name:
+                return importance
+        return float('inf')  # 키워드가 없는 경우 맨 뒤로 정렬
+
+    # 키워드 중요도 점수 컬럼 추가
+    QWGJK_df_yesterday['중요도'] = QWGJK_df_yesterday['세부사업명'].apply(get_importance)
+    QWGJK_df_today['중요도'] = QWGJK_df_today['세부사업명'].apply(get_importance)
+
+    # 중요도 순서로 정렬
+    QWGJK_df_yesterday = QWGJK_df_yesterday.sort_values(by='중요도')
+    QWGJK_df_today = QWGJK_df_today.sort_values(by='중요도')
+
+    # 중요도 컬럼 제거 (원하지 않으면)
+    QWGJK_df_yesterday = QWGJK_df_yesterday.drop(columns=['중요도'])
+    QWGJK_df_today = QWGJK_df_today.drop(columns=['중요도'])
+
+
+    return QWGJK_df_yesterday, QWGJK_df_today
+
+@st.cache_data
+def load_bid_ser_data():
+    bir_ser_df_yesterday = get_dataframe_from_bigquery('mido_test', 'bir_ser_df_yesterday').sort_values('공고일', ascending=False)
+    bir_ser_df_today = get_dataframe_from_bigquery('mido_test', 'bir_ser_df_today').sort_values('공고일', ascending=False)
+
+    return bir_ser_df_yesterday, bir_ser_df_today
+
+@st.cache_data
+def load_news_data():
+    news_df_yesterday = get_dataframe_from_bigquery('mido_test', 'news_df_yesterday').sort_values('기사날짜', ascending=False)
+    news_df_today = get_dataframe_from_bigquery('mido_test', 'news_df_today').sort_values('기사날짜', ascending=False)
+
+    return news_df_yesterday, news_df_today
+
+@st.cache_data
 def load_orderlist_data():
     orderlist = get_dataframe_from_bigquery('mido_test', 'order_test')
 
     return orderlist
 
-@st.cache_data
-def load_region_geodata():
-    region_geodata = get_geodataframe_from_bigquery('mido_test', 'region_df')
-
-    return region_geodata
+# @st.cache_data
+# def load_region_geodata():
+#     region_geodata = get_geodataframe_from_bigquery('mido_test', 'region_df')
+#
+#     return region_geodata
