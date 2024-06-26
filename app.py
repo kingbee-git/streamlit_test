@@ -4,6 +4,8 @@ from streamlit_option_menu import option_menu
 
 import utils
 import home_app
+import QWGJK_app
+import info21C_app
 import orderlist_app
 import orderlist_realtime_app
 import orderlist_updated_app
@@ -91,8 +93,8 @@ def main():
                 "nav-link-selected": {"background-color": "#02ab21", "color": "#fff"},
             }
 
-            selected = option_menu("Mido Plus", ["HOME", "orderlist", "orderlist_realtime", "orderlist_updated", "STAT"],
-                                   icons=["house", "gear", "gear", "gear", "gear"],
+            selected = option_menu("Mido Plus", ["HOME", "지자체 예산서", "인포21C", "orderlist", "orderlist_realtime", "orderlist_updated", "STAT"],
+                                   icons=["house", "gear", "gear", "gear", "gear", "gear", "gear"],
                                    menu_icon="cast",
                                    default_index=0,
                                    orientation="vertical",
@@ -102,6 +104,10 @@ def main():
 
         if selected == "HOME":
             home_app.home_app()
+        elif selected == "지자체 예산서":
+            QWGJK_app.QWGJK_app()
+        elif selected == "인포21C":
+            info21C_app.info21C_app()
         elif selected == "orderlist":
             orderlist_app.orderlist_app()
         elif selected == "orderlist_realtime":

@@ -13,17 +13,10 @@ def home_app():
     # region_geodata = utils.load_region_geodata()
     # region_geodata.crs = "EPSG:5179"
 
-    QWGJK_df_yesterday, QWGJK_df_today = utils.load_QWGJK_data()
-    bir_ser_df_yesterday, bir_ser_df_today = utils.load_bid_ser_data()
-    news_df_yesterday, news_df_today = utils.load_news_data()
-
     col1, col2 = st.columns([1, 1])
 
     with col1:
-        st.subheader("지자체 예산")
-        st.write("키워드 내 지자체 예산 전체 입니다.")
-        st.dataframe(QWGJK_df_today)
-
+        st.write(" ")
 
         # # folium 지도 생성
         # map = folium.Map(location=[36.34, 127.77], zoom_start=6)
@@ -51,17 +44,7 @@ def home_app():
         # st_folium(map, width=400, height=500)
 
     with col2:
-        QWGJK_key_column = '세부사업명'
-
-        QWGJK_end = QWGJK_df_yesterday[~QWGJK_df_yesterday[QWGJK_key_column].isin(QWGJK_df_today[QWGJK_key_column])]
-        QWGJK_new = QWGJK_df_today[~QWGJK_df_today[QWGJK_key_column].isin(QWGJK_df_yesterday[QWGJK_key_column])]
-
-        st.write("금일 추가된 지자체 예산 사업 입니다.")
-        st.dataframe(QWGJK_new)
-
-        st.write("금일 집행 종료 된 지자체 예산 사업 입니다.")
-        st.dataframe(QWGJK_end)
-
+        st.write(" ")
 
         # # EPSG:4326 좌표계로 변환
         # region_geodata = region_geodata.to_crs(epsg=4326)
@@ -106,24 +89,10 @@ def home_app():
     col3, col4, col5 = st.columns(3)
 
     with col3:
-        st.subheader("인포 21C (용역입찰)")
-        st.write("키워드 내 용역입찰 건 입니다.")
-        st.dataframe(bir_ser_df_today)
+        st.write(" ")
 
     with col4:
-        bir_ser_key_column = '용역명'
-
-        bir_ser_new = bir_ser_df_today[
-            ~bir_ser_df_today[bir_ser_key_column].isin(bir_ser_df_yesterday[bir_ser_key_column])]
-
-        st.write("새로운 용역입찰 건 입니다.")
-        st.dataframe(bir_ser_new)
+        st.write(" ")
 
     with col5:
-        news_key_column = '제목'
-
-        news_new = news_df_today[~news_df_today[news_key_column].isin(news_df_yesterday[news_key_column])]
-
-        st.subheader("뉴스")
-        st.write("키워드 내 뉴스 입니다.")
-        st.dataframe(news_new)
+        st.write(" ")
