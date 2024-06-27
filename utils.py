@@ -4,6 +4,7 @@ import pandas as pd
 import geopandas as gpd
 import pandas_gbq
 from datetime import datetime, timedelta
+import pytz
 import json
 from shapely import wkt
 from google.cloud import bigquery
@@ -62,6 +63,31 @@ def get_geodataframe_from_bigquery(dataset_id, table_id):
     gdf.crs = "EPSG:5179"
 
     return gdf
+
+def log_user_action(username, action, dataset_id, table_id):
+
+    client = bigquery.Client(credentials=credentials)
+
+    table_ref = f"{client.project}.{dataset_id}.{table_id}"
+
+    # 현재 시각을 한국 시간으로 설정
+    kst = pytz.timezone('Asia/Seoul')
+    timestamp_now = datetime.now(kst).strftime('%Y-%m-%d %H:%M:%S')
+
+    rows_to_insert = [
+        {
+            "username": username,
+            "timestamp": timestamp_now,  # 문자열로 변환된 시각
+            "action": action
+        }
+    ]
+
+    errors = client.insert_rows_json(table_ref, rows_to_insert)
+    if errors == []:
+        print("New rows have been added.")
+    else:
+        print("Encountered errors while inserting rows: {}".format(errors))
+
 
 
 @st.cache_data

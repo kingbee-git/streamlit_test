@@ -32,11 +32,14 @@ def login(username, password):
             st.session_state['logged_in'] = True
             st.session_state['username'] = username
             st.session_state['jobTitle'] = users[username]['jobTitle']
+
+            utils.log_user_action(username, "login", "mido_test", "logs")
             return True
     return False
 
 
 def logout():
+    utils.log_user_action(st.session_state['username'], "logout", "mido_test", "logs")
     st.session_state['logged_in'] = False
     st.session_state['username'] = None
     st.session_state['jobTitle'] = None
@@ -104,20 +107,28 @@ def main():
                                    )
 
         if selected == "HOME":
+            utils.log_user_action(st.session_state['username'], "viewed HOME", "mido_test", "logs")
             home_app.home_app()
         elif selected == "지자체 예산서":
+            utils.log_user_action(st.session_state['username'], "viewed 지자체 예산서", "mido_test", "logs")
             QWGJK_app.QWGJK_app()
         elif selected == "인포21C":
+            utils.log_user_action(st.session_state['username'], "viewed 인포21C", "mido_test", "logs")
             info21C_app.info21C_app()
         elif selected == "뉴스":
+            utils.log_user_action(st.session_state['username'], "viewed 뉴스", "mido_test", "logs")
             news_app.news_app()
         elif selected == "orderlist":
+            utils.log_user_action(st.session_state['username'], "viewed orderlist", "mido_test", "logs")
             orderlist_app.orderlist_app()
         elif selected == "orderlist_realtime":
+            utils.log_user_action(st.session_state['username'], "viewed orderlist_realtime", "mido_test", "logs")
             orderlist_realtime_app.orderlist_realtime_app()
         elif selected == "orderlist_updated":
+            utils.log_user_action(st.session_state['username'], "viewed orderlist_updated", "mido_test", "logs")
             orderlist_updated_app.orderlist_updated_app()
         elif selected == "STAT":
+            utils.log_user_action(st.session_state['username'], "viewed STAT", "mido_test", "logs")
             stat_app.stat_app()
 
     else:
@@ -127,7 +138,7 @@ def main():
         if st.button("로그인"):
             if login(username, password):
                 st.success("로그인에 성공하였습니다.")
-                st.experimental_rerun()  # Reload page after login
+                st.experimental_rerun()
             else:
                 st.error("이름 또는 비밀번호를 확인해주세요.")
 
