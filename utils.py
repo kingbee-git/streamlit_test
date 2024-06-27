@@ -118,6 +118,28 @@ def load_news_data():
     news_df_yesterday = get_dataframe_from_bigquery('mido_test', 'news_df_yesterday').sort_values('기사날짜', ascending=False)
     news_df_today = get_dataframe_from_bigquery('mido_test', 'news_df_today').sort_values('기사날짜', ascending=False)
 
+    # 키워드 중요도 리스트
+    keywords = ['인조잔디']
+    keyword_importance = {keyword: i for i, keyword in enumerate(keywords)}
+
+    def get_importance(name):
+        for keyword, importance in keyword_importance.items():
+            if keyword in name:
+                return importance
+        return float('inf')  # 키워드가 없는 경우 맨 뒤로 정렬
+
+    # 키워드 중요도 점수 컬럼 추가
+    news_df_yesterday['중요도'] = news_df_yesterday['내용'].apply(get_importance)
+    news_df_today['중요도'] = news_df_today['내용'].apply(get_importance)
+
+    # 중요도 순서로 정렬
+    news_df_yesterday = news_df_yesterday.sort_values(by='중요도')
+    news_df_today = news_df_today.sort_values(by='중요도')
+
+    # 중요도 컬럼 제거 (원하지 않으면)
+    news_df_yesterday = news_df_yesterday.drop(columns=['중요도'])
+    news_df_today = news_df_today.drop(columns=['중요도'])
+
     return news_df_yesterday, news_df_today
 
 @st.cache_data
