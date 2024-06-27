@@ -36,7 +36,8 @@ def QWGJK_app():
         else:
             QWGJK_new_filtered_df = QWGJK_new
 
-    st.dataframe(QWGJK_new_filtered_df)
+    st.write(f"{len(QWGJK_new_filtered_df)} 건")
+    st.dataframe(QWGJK_new_filtered_df, hide_index=True)
 
     st.markdown("<h5>지자체 예산 금일 지출결의 종료 된 건 입니다.</h5>", unsafe_allow_html=True)
     QWGJK_end_column_index = QWGJK_end.columns.get_loc(QWGJK_key_column)
@@ -58,7 +59,8 @@ def QWGJK_app():
         else:
             QWGJK_end_filtered_df = QWGJK_end
 
-    st.dataframe(QWGJK_end_filtered_df)
+    st.write(f"{len(QWGJK_end_filtered_df)} 건")
+    st.dataframe(QWGJK_end_filtered_df, hide_index=True)
 
     st.markdown("<h5>키워드 내 지자체 예산 전체 입니다.</h5>", unsafe_allow_html=True)
     QWGJK_column_index = QWGJK_df_today.columns.get_loc(QWGJK_key_column)
@@ -79,4 +81,5 @@ def QWGJK_app():
         else:
             QWGJK_filtered_df = QWGJK_df_today
 
-    st.dataframe(QWGJK_filtered_df)
+    st.write(f"{len(QWGJK_filtered_df)} 건")
+    st.dataframe(QWGJK_filtered_df, hide_index=True)
