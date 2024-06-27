@@ -133,11 +133,25 @@ def load_QWGJK_data():
     return QWGJK_df_yesterday, QWGJK_df_today
 
 @st.cache_data
+def load_bid_con_data():
+    bir_con_df_yesterday = get_dataframe_from_bigquery('mido_test', 'bir_con_df_yesterday').sort_values('공고일', ascending=False)
+    bir_con_df_today = get_dataframe_from_bigquery('mido_test', 'bir_con_df_today').sort_values('공고일', ascending=False)
+
+    return bir_con_df_yesterday, bir_con_df_today
+
+@st.cache_data
 def load_bid_ser_data():
     bir_ser_df_yesterday = get_dataframe_from_bigquery('mido_test', 'bir_ser_df_yesterday').sort_values('공고일', ascending=False)
     bir_ser_df_today = get_dataframe_from_bigquery('mido_test', 'bir_ser_df_today').sort_values('공고일', ascending=False)
 
     return bir_ser_df_yesterday, bir_ser_df_today
+
+@st.cache_data
+def load_bid_pur_data():
+    bir_pur_df_yesterday = get_dataframe_from_bigquery('mido_test', 'bir_pur_df_yesterday')
+    bir_pur_df_today = get_dataframe_from_bigquery('mido_test', 'bir_pur_df_today')
+
+    return bir_pur_df_yesterday, bir_pur_df_today
 
 @st.cache_data
 def load_news_data():

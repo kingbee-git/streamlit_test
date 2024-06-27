@@ -1,47 +1,86 @@
 # -*- coding: utf-8 -*-
 import streamlit as st
-
 import pandas as pd
-
 import utils
 
-
 def info21C_app():
-    bir_ser_df_yesterday, bir_ser_df_today = utils.load_bid_ser_data()
+    bid_con_df_yesterday, bid_con_df_today = utils.load_bid_con_data()
+    bid_ser_df_yesterday, bid_ser_df_today = utils.load_bid_ser_data()
+    bid_pur_df_yesterday,  bid_pur_df_today = utils.load_bid_pur_data()
 
     col1, col2, col3 = st.columns(3)
 
     with col1:
-        st.subheader("첫 번째 칼럼")
-        st.write("이곳에 그래프나 데이터를 표시할 수 있습니다.")
+        bid_con_key_column = '공고명'
+        bid_con_new = bid_con_df_today[
+            ~bid_con_df_today[bid_con_key_column].isin(bid_con_df_yesterday[bid_con_key_column])]
+
+        st.subheader("인포21C (공사입찰)")
+        st.markdown("<h5>새로운 공사입찰 건 입니다.</h5>", unsafe_allow_html=True)
+        st.write(f"{len(bid_con_new)} 건")
+        st.dataframe(bid_con_new, hide_index=True)
+
+        st.markdown("<h5>키워드 내 인포21C 공사입찰 입니다.</h5>", unsafe_allow_html=True)
+        bid_con_column_index = bid_con_df_today.columns.get_loc(bid_con_key_column)
+        bid_con_column = st.selectbox('필터링할 열 선택', bid_con_df_today.columns, index=bid_con_column_index)
+        bid_con_search_term = st.text_input(f'{bid_con_column}에서 검색할 내용 입력', key='bid_con_search')
+
+        if bid_con_search_term:
+            bid_con_filtered_df = bid_con_df_today[
+                bid_con_df_today[bid_con_column].str.contains(bid_con_search_term, case=False, na=False)]
+            st.write(f"{len(bid_con_filtered_df)} 건")
+            st.dataframe(bid_con_filtered_df, hide_index=True)
+        else:
+            bid_con_filtered_df = bid_con_df_today
+            st.write(f"{len(bid_con_filtered_df)} 건")
+            st.dataframe(bid_con_filtered_df, hide_index=True)
 
     with col2:
-
-        bir_ser_key_column = '용역명'
-
-        bir_ser_new = bir_ser_df_today[
-            ~bir_ser_df_today[bir_ser_key_column].isin(bir_ser_df_yesterday[bir_ser_key_column])]
+        bid_ser_key_column = '용역명'
+        bid_ser_new = bid_ser_df_today[
+            ~bid_ser_df_today[bid_ser_key_column].isin(bid_ser_df_yesterday[bid_ser_key_column])]
 
         st.subheader("인포21C (용역입찰)")
         st.markdown("<h5>새로운 용역입찰 건 입니다.</h5>", unsafe_allow_html=True)
-        st.write(f"{len(bir_ser_new)} 건")
-        st.dataframe(bir_ser_new, hide_index=True)
+        st.write(f"{len(bid_ser_new)} 건")
+        st.dataframe(bid_ser_new, hide_index=True)
 
         st.markdown("<h5>키워드 내 인포21C 용역입찰 입니다.</h5>", unsafe_allow_html=True)
-        bir_ser_column_index = bir_ser_df_today.columns.get_loc(bir_ser_key_column)
-        bir_ser_column = st.selectbox('필터링할 열 선택', bir_ser_df_today.columns, index=bir_ser_column_index)
-        bir_ser_search_term = st.text_input(f'{bir_ser_column}에서 검색할 내용 입력')
+        bid_ser_column_index = bid_ser_df_today.columns.get_loc(bid_ser_key_column)
+        bid_ser_column = st.selectbox('필터링할 열 선택', bid_ser_df_today.columns, index=bid_ser_column_index)
+        bid_ser_search_term = st.text_input(f'{bid_ser_column}에서 검색할 내용 입력', key='bid_ser_search')
 
-        if bir_ser_search_term:
-            bir_ser_filtered_df = bir_ser_df_today[
-                bir_ser_df_today[bir_ser_column].str.contains(bir_ser_search_term, case=False, na=False)]
-            st.write(f"{len(bir_ser_filtered_df)} 건")
-            st.dataframe(bir_ser_filtered_df, hide_index=True)
+        if bid_ser_search_term:
+            bid_ser_filtered_df = bid_ser_df_today[
+                bid_ser_df_today[bid_ser_column].str.contains(bid_ser_search_term, case=False, na=False)]
+            st.write(f"{len(bid_ser_filtered_df)} 건")
+            st.dataframe(bid_ser_filtered_df, hide_index=True)
         else:
-            bir_ser_filtered_df = bir_ser_df_today
-            st.write(f"{len(bir_ser_filtered_df)} 건")
-            st.dataframe(bir_ser_filtered_df, hide_index=True)
+            bid_ser_filtered_df = bid_ser_df_today
+            st.write(f"{len(bid_ser_filtered_df)} 건")
+            st.dataframe(bid_ser_filtered_df, hide_index=True)
 
     with col3:
-        st.subheader("세 번째 칼럼")
-        st.write("이곳에 추가적인 정보를 표시할 수 있습니다.")
+        bid_pur_key_column = '공고명'
+        bid_pur_new = bid_pur_df_today[
+            ~bid_pur_df_today[bid_pur_key_column].isin(bid_pur_df_yesterday[bid_pur_key_column])]
+
+        st.subheader("인포21C (구매입찰)")
+        st.markdown("<h5>새로운 구매입찰 건 입니다.</h5>", unsafe_allow_html=True)
+        st.write(f"{len(bid_pur_new)} 건")
+        st.dataframe(bid_pur_new, hide_index=True)
+
+        st.markdown("<h5>키워드 내 인포21C 구매입찰 입니다.</h5>", unsafe_allow_html=True)
+        bid_pur_column_index = bid_pur_df_today.columns.get_loc(bid_pur_key_column)
+        bid_pur_column = st.selectbox('필터링할 열 선택', bid_pur_df_today.columns, index=bid_pur_column_index)
+        bid_pur_search_term = st.text_input(f'{bid_pur_column}에서 검색할 내용 입력', key='bid_pur_search')
+
+        if bid_pur_search_term:
+            bid_pur_filtered_df = bid_pur_df_today[
+                bid_pur_df_today[bid_pur_column].str.contains(bid_pur_search_term, case=False, na=False)]
+            st.write(f"{len(bid_pur_filtered_df)} 건")
+            st.dataframe(bid_pur_filtered_df, hide_index=True)
+        else:
+            bid_pur_filtered_df = bid_pur_df_today
+            st.write(f"{len(bid_pur_filtered_df)} 건")
+            st.dataframe(bid_pur_filtered_df, hide_index=True)
