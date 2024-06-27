@@ -31,6 +31,7 @@ def save_dataframe_to_bigquery(df, dataset_id, table_id):
     job.result()  # 작업 완료 대기
 
     print(f"Data inserted into table {table_id} successfully.")
+
 def get_dataframe_from_bigquery(dataset_id, table_id):
 
     # BigQuery 클라이언트 생성
