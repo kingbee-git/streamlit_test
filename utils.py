@@ -159,7 +159,7 @@ def load_news_data():
     news_df_today = get_dataframe_from_bigquery('mido_test', 'news_df_today').sort_values('기사날짜', ascending=False)
 
     # 키워드 중요도 리스트
-    keywords = ['인조잔디']
+    keywords = ['인조잔디','예산']
     keyword_importance = {keyword: i for i, keyword in enumerate(keywords)}
 
     def get_importance(name):
