@@ -65,6 +65,18 @@ def get_geodataframe_from_bigquery(dataset_id, table_id):
 
     return gdf
 
+def process_dataframe(df, columns_to_keep, columns_order, sort_by, ascending=True):
+    # Drop columns not in the columns_to_keep list
+    df = df[columns_to_keep]
+
+    # Reorder the columns
+    df = df[columns_order]
+
+    # Sort the dataframe
+    df = df.sort_values(by=sort_by, ascending=ascending)
+
+    return df
+
 def log_user_action(username, action, dataset_id, table_id):
 
     client = bigquery.Client(credentials=credentials)
@@ -108,6 +120,13 @@ def load_QWGJK_data():
     QWGJK_df_today['회계연도'] = pd.to_datetime(QWGJK_df_today['회계연도'], format='%Y').dt.strftime('%Y')
     QWGJK_df_today['집행일자'] = pd.to_datetime(QWGJK_df_today['집행일자'], format='%Y%m%d').dt.strftime('%Y%m%d')
 
+    columns_to_keep = ['집행일자', '지역명', '자치단체명', '세부사업명', '예산현액', '국비', '시도비', '시군구비', '기타', '지출액', '편성액']
+    columns_order = ['집행일자', '지역명', '자치단체명', '세부사업명', '예산현액', '국비', '시도비', '시군구비', '기타', '지출액', '편성액']
+    sort_by = ['세부사업명']
+
+    QWGJK_df_yesterday = process_dataframe(QWGJK_df_yesterday, columns_to_keep, columns_order, sort_by)
+    QWGJK_df_today = process_dataframe(QWGJK_df_today, columns_to_keep, columns_order, sort_by)
+
     # 키워드 중요도 리스트
     keywords = ['인조잔디', '조성사업']
     keyword_importance = {keyword: i for i, keyword in enumerate(keywords)}
@@ -130,20 +149,34 @@ def load_QWGJK_data():
     QWGJK_df_yesterday = QWGJK_df_yesterday.drop(columns=['중요도'])
     QWGJK_df_today = QWGJK_df_today.drop(columns=['중요도'])
 
-
     return QWGJK_df_yesterday, QWGJK_df_today
 
 @st.cache_data
 def load_bid_con_data():
-    bir_con_df_yesterday = get_dataframe_from_bigquery('mido_test', 'bir_con_df_yesterday').sort_values('공고일', ascending=False)
-    bir_con_df_today = get_dataframe_from_bigquery('mido_test', 'bir_con_df_today').sort_values('공고일', ascending=False)
+    bir_con_df_yesterday = get_dataframe_from_bigquery('mido_test', 'bir_con_df_yesterday')
+    bir_con_df_today = get_dataframe_from_bigquery('mido_test', 'bir_con_df_today')
+
+    columns_to_keep = ['공고일', '지역', '발주처', '구분', '공고명', '업종', '분류']
+    columns_order = ['공고일', '지역', '발주처', '구분', '공고명', '업종', '분류']
+    sort_by = ['공고일']
+
+    bir_con_df_yesterday = process_dataframe(bir_con_df_yesterday, columns_to_keep, columns_order, sort_by, False)
+    bir_con_df_today = process_dataframe(bir_con_df_today, columns_to_keep, columns_order, sort_by, False)
+
 
     return bir_con_df_yesterday, bir_con_df_today
 
 @st.cache_data
 def load_bid_ser_data():
-    bir_ser_df_yesterday = get_dataframe_from_bigquery('mido_test', 'bir_ser_df_yesterday').sort_values('공고일', ascending=False)
-    bir_ser_df_today = get_dataframe_from_bigquery('mido_test', 'bir_ser_df_today').sort_values('공고일', ascending=False)
+    bir_ser_df_yesterday = get_dataframe_from_bigquery('mido_test', 'bir_ser_df_yesterday')
+    bir_ser_df_today = get_dataframe_from_bigquery('mido_test', 'bir_ser_df_today')
+
+    columns_to_keep = ['공고일', '지역', '발주처', '구분', '공고명']
+    columns_order = ['공고일', '지역', '발주처', '구분', '공고명']
+    sort_by = ['공고일']
+
+    bir_ser_df_yesterday = process_dataframe(bir_ser_df_yesterday, columns_to_keep, columns_order, sort_by, False)
+    bir_ser_df_today = process_dataframe(bir_ser_df_today, columns_to_keep, columns_order, sort_by, False)
 
     return bir_ser_df_yesterday, bir_ser_df_today
 
@@ -152,7 +185,41 @@ def load_bid_pur_data():
     bir_pur_df_yesterday = get_dataframe_from_bigquery('mido_test', 'bir_pur_df_yesterday')
     bir_pur_df_today = get_dataframe_from_bigquery('mido_test', 'bir_pur_df_today')
 
+    columns_to_keep = ['공고명', '업종', '분류']
+    columns_order = ['공고명', '업종', '분류']
+    sort_by = ['공고명']
+
+    bir_pur_df_yesterday = process_dataframe(bir_pur_df_yesterday, columns_to_keep, columns_order, sort_by, False)
+    bir_pur_df_today = process_dataframe(bir_pur_df_today, columns_to_keep, columns_order, sort_by, False)
+
     return bir_pur_df_yesterday, bir_pur_df_today
+
+@st.cache_data
+def load_nara_data():
+    nara_df = get_dataframe_from_bigquery('mido_test', 'nara_df')
+
+    # columns_to_keep = [
+    #     '납품요구접수일자', '수요기관명', '납품요구건명', '업체명', '품목', '단가', '단위', '수량', '금액', '납품기한일자',
+    #     '계약구분', '계약번호', '계약변경차수', '다수공급자계약여부', '우수제품여부', '최종납품요구여부', '최초납품요구접수일자',
+    #     '납품요구수량', '납품요구금액', '수요기관지역명', '납품요구지청명'
+    # ]
+    # columns_order = [
+    #     '납품요구접수일자', '수요기관명', '납품요구건명', '업체명', '품목', '단가', '단위', '수량', '금액', '납품기한일자',
+    #     '계약구분', '계약번호', '계약변경차수', '다수공급자계약여부', '우수제품여부', '최종납품요구여부', '최초납품요구접수일자',
+    #     '납품요구수량', '납품요구금액', '수요기관지역명', '납품요구지청명'
+    # ]
+
+    columns_to_keep = [
+        '납품요구접수일자', '수요기관명', '납품요구건명', '업체명', '금액', '수량', '단위', '단가', '품목'
+    ]
+    columns_order = [
+        '납품요구접수일자', '수요기관명', '납품요구건명', '업체명', '금액', '수량', '단위', '단가', '품목'
+    ]
+    sort_by = ['납품요구접수일자']
+
+    nara_df = process_dataframe(nara_df, columns_to_keep, columns_order, sort_by, False)
+
+    return nara_df
 
 @st.cache_data
 def load_news_data():

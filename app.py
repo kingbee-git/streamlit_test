@@ -6,6 +6,7 @@ import utils
 import home_app
 import QWGJK_app
 import info21C_app
+import nara_app
 import news_app
 import orderlist_app
 import orderlist_realtime_app
@@ -97,8 +98,8 @@ def main():
                 "nav-link-selected": {"background-color": "#02ab21", "color": "#fff"},
             }
 
-            selected = option_menu("Mido Plus", ["HOME", "지자체 예산서", "인포21C", "뉴스", "orderlist", "orderlist_realtime", "orderlist_updated", "STAT"],
-                                   icons=["house", "gear", "gear", "gear", "gear", "gear", "gear", "gear"],
+            selected = option_menu("Mido Plus", ["현황", "지자체 예산서", "인포21C", "종합쇼핑몰 납품상세 내역", "뉴스", "orderlist", "orderlist_realtime", "orderlist_updated", "STAT"],
+                                   icons=["house", "gear", "gear", "gear", "gear", "gear", "gear", "gear", "gear"],
                                    menu_icon="cast",
                                    default_index=0,
                                    orientation="vertical",
@@ -106,7 +107,7 @@ def main():
                                    styles=styles,
                                    )
 
-        if selected == "HOME":
+        if selected == "현황":
             utils.log_user_action(st.session_state['username'], "viewed HOME", "mido_test", "logs")
             home_app.home_app()
         elif selected == "지자체 예산서":
@@ -115,6 +116,9 @@ def main():
         elif selected == "인포21C":
             utils.log_user_action(st.session_state['username'], "viewed 인포21C", "mido_test", "logs")
             info21C_app.info21C_app()
+        elif selected == "종합쇼핑몰 납품상세 내역":
+            utils.log_user_action(st.session_state['username'], "viewed 종합쇼핑몰 납품상세 내역", "mido_test", "logs")
+            nara_app.nara_app()
         elif selected == "뉴스":
             utils.log_user_action(st.session_state['username'], "viewed 뉴스", "mido_test", "logs")
             news_app.news_app()
