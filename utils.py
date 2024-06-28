@@ -152,6 +152,18 @@ def load_QWGJK_data():
     return QWGJK_df_yesterday, QWGJK_df_today
 
 @st.cache_data
+def load_dep_edu_data():
+    dep_edu_df = get_dataframe_from_bigquery('mido_test', 'dep_edu_df')
+
+    columns_to_keep = ['도/광역시', '시/군/구', '구분', '과업명', '금액']
+    columns_order = ['도/광역시', '시/군/구', '구분', '과업명', '금액']
+    sort_by = ['도/광역시', '시/군/구']
+
+    dep_edu_df = process_dataframe(dep_edu_df, columns_to_keep, columns_order, sort_by)
+
+    return dep_edu_df
+
+@st.cache_data
 def load_bid_con_data():
     bir_con_df_yesterday = get_dataframe_from_bigquery('mido_test', 'bir_con_df_yesterday')
     bir_con_df_today = get_dataframe_from_bigquery('mido_test', 'bir_con_df_today')
