@@ -155,9 +155,9 @@ def load_QWGJK_data():
 def load_dep_edu_data():
     dep_edu_df = get_dataframe_from_bigquery('mido_test', 'dep_edu_df')
 
-    columns_to_keep = ['도/광역시', '시/군/구', '구분', '과업명', '금액', '면적', '예산집행']
-    columns_order = ['도/광역시', '시/군/구', '구분', '과업명', '금액', '면적', '예산집행']
-    sort_by = ['도/광역시', '시/군/구']
+    columns_to_keep = ['도광역시', '시군구', '구분', '과업명', '금액', '면적', '예산집행']
+    columns_order = ['도광역시', '시군구', '구분', '과업명', '금액', '면적', '예산집행']
+    sort_by = ['도광역시', '시군구']
 
     dep_edu_df = process_dataframe(dep_edu_df, columns_to_keep, columns_order, sort_by)
 
