@@ -101,7 +101,7 @@ def main():
             }
 
             selected = option_menu("Mido Plus", ["현황", "예산 및 사업 맵핑 테스트 중", "지자체 예산서", "교육청 예산서", "인포21C", "종합쇼핑몰 납품상세 내역", "뉴스", "orderlist", "orderlist_realtime", "orderlist_updated", "STAT"],
-                                   icons=["house", "gear", "gear", "gear", "gear", "gear", "gear", "gear", "gear"],
+                                   icons=["house", "gear", "gear", "gear", "gear", "gear", "gear", "gear", "gear", "gear", "gear"],
                                    menu_icon="cast",
                                    default_index=0,
                                    orientation="vertical",
