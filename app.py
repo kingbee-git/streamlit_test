@@ -133,15 +133,16 @@ def main():
 
     else:
         st.write("계속하시려면 로그인하세요.")
-        username = st.text_input("이름")
-        password = st.text_input("비밀번호", type="password")
-        if st.button("로그인"):
-            if login(username, password):
-                st.success("로그인에 성공하였습니다.")
-                st.experimental_rerun()
-            else:
-                st.error("이름 또는 비밀번호를 확인해주세요.")
-
+        with st.form(key='login_form'):
+            username = st.text_input("이름")
+            password = st.text_input("비밀번호", type="password")
+            login_button = st.form_submit_button("로그인")
+            if login_button:
+                if login(username, password):
+                    st.success("로그인에 성공하였습니다.")
+                    st.experimental_rerun()
+                else:
+                    st.error("이름 또는 비밀번호를 확인해주세요.")
 
 if __name__ == "__main__":
     main()
