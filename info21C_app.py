@@ -42,7 +42,7 @@ def info21C_app():
                 st.dataframe(bid_con_filtered_df, hide_index=True)
 
         with col2:
-            bid_ser_key_column = '용역명'
+            bid_ser_key_column = '공고명'
             bid_ser_new = bid_ser_df_today[
                 ~bid_ser_df_today[bid_ser_key_column].isin(bid_ser_df_yesterday[bid_ser_key_column])]
 
