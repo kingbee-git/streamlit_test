@@ -3,15 +3,81 @@ import streamlit as st
 
 import pandas as pd
 import geopandas as gpd
+import matplotlib.pyplot as plt
+import matplotlib.font_manager as fm
 import folium
 from streamlit_folium import st_folium
 import pydeck as pdk
+import os
 
 import utils
 
+def font_set():
+    font_dirs = [os.getcwd() + '/nanum']
+
+    font_files = fm.findSystemFonts(fontpaths=font_dirs)
+
+    for font_file in font_files:
+        fm.fontManager.addfont(font_file)
+
+    plt.rcParams['font.family'] = fm.FontProperties(fname=font_files[0]).get_name()
+
+def plot_company_data(nara_df, company_keywords, total_amount_total=None):
+    font_set()
+
+    company_data = {}
+    for keyword in company_keywords:
+        filtered_df = nara_df[nara_df['업체명'].str.contains(keyword)]
+        total_amount = filtered_df['금액'].sum()
+        total_count = filtered_df.shape[0]
+        company_data[keyword] = {'금액': total_amount, '건수': total_count}
+
+    if total_amount_total is None:
+        total_amount_total = nara_df['금액'].sum()
+
+    total_amount_ratios = [data['금액'] / total_amount_total * 100 for data in company_data.values()]
+    total_counts = [data['건수'] for data in company_data.values()]
+    companies = list(company_data.keys())
+
+    fig, ax1 = plt.subplots()
+
+    color = 'tab:blue'
+    ax1.set_xlabel('Company')
+    ax1.set_ylabel('Total Amount Ratio (%)', color=color)
+    ax1.bar(companies, total_amount_ratios, color=color, alpha=0.6, label='Total Amount Ratio')
+    ax1.tick_params(axis='y', labelcolor=color)
+    ax1.legend(loc='upper left')
+    ax1.set_ylim(0, 100)
+
+    ax2 = ax1.twinx()
+    color = 'tab:red'
+    ax2.set_ylabel('Total Count', color=color)
+    ax2.plot(companies, total_counts, color=color, marker='o', linestyle='-', linewidth=2, markersize=6,
+             label='Total Count')
+    ax2.tick_params(axis='y', labelcolor=color)
+    ax2.legend(loc='upper right')
+    ax2.set_ylim(0, nara_df.shape[0])
+
+    # 각 막대와 선 위에 텍스트 추가
+    for i, company in enumerate(companies):
+        amount_text = f'Total Amount: {total_amount_ratios[i]:.2f}%\n\n'
+        count_text = f'Total Count: {total_counts[i] / nara_df.shape[0] * 100:.2f}%'
+
+        ax1.annotate(amount_text, (i, total_amount_ratios[i]), textcoords="offset points", xytext=(0,10), ha='center', fontsize=8)
+        ax2.annotate(count_text, (i, total_counts[i]), textcoords="offset points", xytext=(0,10), ha='center', fontsize=8)
+
+    fig.tight_layout()
+    plt.xticks(rotation=45)
+    plt.title('Company Performance Comparison')
+
+    st.pyplot(fig)
+
+    return company_data
+
+
 def home_app():
     nara_df = utils.load_nara_data()
-    nara_df = nara_df[nara_df['업체명'].str.contains('미도플러스|에코그라운드')]
+    nara_select_df = nara_df[nara_df['업체명'].str.contains('미도플러스|에코그라운드')]
 
     col1, col2 = st.columns([1, 1])
 
@@ -20,27 +86,27 @@ def home_app():
             nara_df_key_column = '납품요구건명'
 
             st.markdown("<h5>종합쇼핑몰 납품상세내역 현황 입니다.</h5>", unsafe_allow_html=True)
-            nara_column_index = nara_df.columns.get_loc(nara_df_key_column)
-            nara_column = st.selectbox('필터링할 열 선택', nara_df.columns, index=nara_column_index)
+            nara_column_index = nara_select_df.columns.get_loc(nara_df_key_column)
+            nara_column = st.selectbox('필터링할 열 선택', nara_select_df.columns, index=nara_column_index)
             nara_search_term = st.text_input(f'{nara_column}에서 검색할 내용 입력', key='bid_con_search')
 
             if nara_column in ['단가', '수량', '금액', '납품요구금액']:
-                nara_df[nara_column] = nara_df[nara_column].replace(',', '', regex=True).astype(float)
-                min_value = float(nara_df[nara_column].min())
-                max_value = float(nara_df[nara_column].max())
+                nara_select_df[nara_column] = nara_select_df[nara_column].replace(',', '', regex=True).astype(float)
+                min_value = float(nara_select_df[nara_column].min())
+                max_value = float(nara_select_df[nara_column].max())
                 range_values = st.slider(f'{nara_column} 범위 선택', min_value, max_value, (min_value, max_value))
 
             if nara_search_term:
-                if nara_df[nara_column].dtype == 'object':
-                    nara_filtered_df = nara_df[
-                        nara_df[nara_column].str.contains(nara_search_term, case=False, na=False)]
-                elif pd.api.types.is_numeric_dtype(nara_df[nara_column]):
+                if nara_select_df[nara_column].dtype == 'object':
+                    nara_filtered_df = nara_select_df[
+                        nara_select_df[nara_column].str.contains(nara_search_term, case=False, na=False)]
+                elif pd.api.types.is_numeric_dtype(nara_select_df[nara_column]):
                     search_term_cleaned = nara_search_term.replace(',', '')
-                    nara_filtered_df = nara_df[nara_df[nara_column] == int(nara_search_term)]
+                    nara_filtered_df = nara_select_df[nara_select_df[nara_column] == int(nara_search_term)]
                 else:
-                    nara_filtered_df = nara_df
+                    nara_filtered_df = nara_select_df
             else:
-                nara_filtered_df = nara_df
+                nara_filtered_df = nara_select_df
 
             if nara_column in ['단가', '수량', '금액', '납품요구금액']:
                 nara_filtered_df = nara_filtered_df[
@@ -80,8 +146,20 @@ def home_app():
         # st_folium(map, width=400, height=500)
 
     with col2:
-        st.write(" ")
+        nara_df['금액'] = nara_df['금액'].str.replace(',', '').astype(int)
 
+        st.title("납품 데이터 분석")
+        company_keywords = ["미도플러스", "에코그라운드"]
+
+        company_data = plot_company_data(nara_df, company_keywords)
+
+        st.markdown("### 세부 내역")
+        for company, data in company_data.items():
+            st.write(f"{company}:")
+            st.write(f"총 금액: {data['금액']}원")
+            st.write(f"총 건수: {data['건수']}건")
+
+            
         # # EPSG:4326 좌표계로 변환
         # region_geodata = region_geodata.to_crs(epsg=4326)
         #
