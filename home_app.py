@@ -5,6 +5,7 @@ import pandas as pd
 import geopandas as gpd
 import matplotlib.pyplot as plt
 import matplotlib.font_manager as fm
+import plotly.graph_objects as go
 import folium
 from streamlit_folium import st_folium
 import pydeck as pdk
@@ -23,8 +24,7 @@ def font_set():
     plt.rcParams['font.family'] = fm.FontProperties(fname=font_files[0]).get_name()
 
 def plot_company_data(nara_df, company_keywords, total_amount_total=None):
-    font_set()
-
+    # 데이터 전처리
     company_data = {}
     for keyword in company_keywords:
         filtered_df = nara_df[nara_df['업체명'].str.contains(keyword)]
@@ -39,38 +39,47 @@ def plot_company_data(nara_df, company_keywords, total_amount_total=None):
     total_counts = [data['건수'] for data in company_data.values()]
     companies = list(company_data.keys())
 
-    fig, ax1 = plt.subplots()
+    # Plotly 그래프 생성
+    fig = go.Figure()
 
-    color = 'tab:blue'
-    ax1.set_xlabel('Company')
-    ax1.set_ylabel('Total Amount Ratio (%)', color=color)
-    ax1.bar(companies, total_amount_ratios, color=color, alpha=0.6, label='Total Amount Ratio')
-    ax1.tick_params(axis='y', labelcolor=color)
-    ax1.legend(loc='upper left')
-    ax1.set_ylim(0, 100)
+    # Total Amount Ratio Bar
+    fig.add_trace(go.Bar(
+        x=companies,
+        y=total_amount_ratios,
+        name='Total Amount Ratio (%)',
+        marker_color='blue',
+        opacity=0.6,
+        text=[f'Total Amount: {ratio:.2f}%' for ratio in total_amount_ratios],
+        textposition='auto'
+    ))
 
-    ax2 = ax1.twinx()
-    color = 'tab:red'
-    ax2.set_ylabel('Total Count', color=color)
-    ax2.plot(companies, total_counts, color=color, marker='o', linestyle='-', linewidth=2, markersize=6,
-             label='Total Count')
-    ax2.tick_params(axis='y', labelcolor=color)
-    ax2.legend(loc='upper right')
-    ax2.set_ylim(0, nara_df.shape[0])
+    # Total Count Line
+    fig.add_trace(go.Scatter(
+        x=companies,
+        y=total_counts,
+        name='Total Count',
+        marker=dict(color='red', size=10),
+        line=dict(color='red', width=2),
+        text=[f'Total Count: {count / nara_df.shape[0] * 100:.2f}%' for count in total_counts],
+        textposition='top center'
+    ))
 
-    # 각 막대와 선 위에 텍스트 추가
-    for i, company in enumerate(companies):
-        amount_text = f'Total Amount: {total_amount_ratios[i]:.2f}%\n\n'
-        count_text = f'Total Count: {total_counts[i] / nara_df.shape[0] * 100:.2f}%'
+    # 레이아웃 설정
+    fig.update_layout(
+        title='Company Performance Comparison',
+        xaxis_title='Company',
+        yaxis_title='Total Amount Ratio (%)',
+        yaxis2=dict(
+            title='Total Count',
+            overlaying='y',
+            side='right'
+        ),
+        legend=dict(x=0.1, y=1.1),
+        xaxis_tickangle=-45
+    )
 
-        ax1.annotate(amount_text, (i, total_amount_ratios[i]), textcoords="offset points", xytext=(0,10), ha='center', fontsize=8)
-        ax2.annotate(count_text, (i, total_counts[i]), textcoords="offset points", xytext=(0,10), ha='center', fontsize=8)
-
-    fig.tight_layout()
-    plt.xticks(rotation=45)
-    plt.title('Company Performance Comparison')
-
-    st.pyplot(fig)
+    # Streamlit에 그래프 표시
+    st.plotly_chart(fig)
 
     return company_data
 
