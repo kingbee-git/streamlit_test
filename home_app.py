@@ -23,8 +23,9 @@ def font_set():
 
     plt.rcParams['font.family'] = fm.FontProperties(fname=font_files[0]).get_name()
 
+
 def plot_company_data(nara_df, company_keywords, total_amount_total=None):
-    # 데이터 전처리
+
     company_data = {}
     for keyword in company_keywords:
         filtered_df = nara_df[nara_df['업체명'].str.contains(keyword)]
@@ -37,48 +38,49 @@ def plot_company_data(nara_df, company_keywords, total_amount_total=None):
 
     total_amount_ratios = [data['금액'] / total_amount_total * 100 for data in company_data.values()]
     total_counts = [data['건수'] for data in company_data.values()]
+    total_amounts = [data['금액'] for data in company_data.values()]
     companies = list(company_data.keys())
 
-    # Plotly 그래프 생성
     fig = go.Figure()
 
-    # Total Amount Ratio Bar
     fig.add_trace(go.Bar(
         x=companies,
-        y=total_amount_ratios,
-        name='Total Amount Ratio (%)',
+        y=total_amounts,
+        name='Total Amount',
         marker_color='blue',
         opacity=0.6,
-        text=[f'Total Amount: {ratio:.2f}%' for ratio in total_amount_ratios],
+        text=[f'금액: {amount:,}\n\n비율: {ratio:.2f}%' for amount, ratio in zip(total_amounts, total_amount_ratios)],
         textposition='auto'
     ))
 
-    # Total Count Line
     fig.add_trace(go.Scatter(
         x=companies,
         y=total_counts,
         name='Total Count',
+        yaxis='y2',
         marker=dict(color='red', size=10),
         line=dict(color='red', width=2),
-        text=[f'Total Count: {count / nara_df.shape[0] * 100:.2f}%' for count in total_counts],
+        text=[f'건수: {count}\n\n비율: {count / nara_df.shape[0] * 100:.2f}%' for count in total_counts],
         textposition='top center'
     ))
 
-    # 레이아웃 설정
     fig.update_layout(
         title='Company Performance Comparison',
         xaxis_title='Company',
-        yaxis_title='Total Amount Ratio (%)',
+        yaxis_title='Total Amount',
         yaxis2=dict(
             title='Total Count',
             overlaying='y',
-            side='right'
+            side='right',
+            range=[0, nara_df.shape[0] * 1.1]
         ),
-        legend=dict(x=0.1, y=1.1),
-        xaxis_tickangle=-45
+        legend=dict(x=1.1, y=1.0),
+        yaxis=dict(
+            range=[0, total_amount_total * 1.1],
+            showgrid = False
+        )
     )
 
-    # Streamlit에 그래프 표시
     st.plotly_chart(fig)
 
     return company_data
@@ -162,13 +164,6 @@ def home_app():
 
         company_data = plot_company_data(nara_df, company_keywords)
 
-        st.markdown("### 세부 내역")
-        for company, data in company_data.items():
-            st.write(f"{company}:")
-            st.write(f"총 금액: {data['금액']}원")
-            st.write(f"총 건수: {data['건수']}건")
-
-            
         # # EPSG:4326 좌표계로 변환
         # region_geodata = region_geodata.to_crs(epsg=4326)
         #
