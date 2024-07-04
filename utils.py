@@ -268,6 +268,16 @@ def load_orderlist_data():
 
     return orderlist
 
+
+@st.cache_data
+def load_listup_data():
+    cross_dep_edu_df = get_dataframe_from_bigquery('mido_test', 'cross_dep_edu_df')
+    cross_QWGJK_df = get_dataframe_from_bigquery('mido_test', 'cross_QWGJK_df')
+    remain_dep_edu_df = get_dataframe_from_bigquery('mido_test', 'remain_dep_edu_df')
+    remain_QWGJK_df = get_dataframe_from_bigquery('mido_test', 'remain_QWGJK_df')
+
+    return cross_dep_edu_df, cross_QWGJK_df, remain_dep_edu_df, remain_QWGJK_df
+
 # @st.cache_data
 # def load_region_geodata():
 #     region_geodata = get_geodataframe_from_bigquery('mido_test', 'region_df')
