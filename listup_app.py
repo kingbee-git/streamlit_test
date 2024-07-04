@@ -49,8 +49,8 @@ def listup_app():
         numeric_columns = ['금액', '면적']
 
         st.markdown("<h5>키워드 내 교육청 예산 입니다.</h5>", unsafe_allow_html=True)
-        dep_edu_column_index = remain_dep_edu_df.columns.get_loc(QWGJK_key_column)
-        dep_edu_column = st.selectbox('필터링할 열 선택', remain_dep_edu_df.columns, index=dep_edu_column_index, key='QWGJK_column')
+        dep_edu_column_index = remain_dep_edu_df.columns.get_loc(dep_edu_key_column)
+        dep_edu_column = st.selectbox('필터링할 열 선택', remain_dep_edu_df.columns, index=dep_edu_column_index, key='dep_edu_column')
 
         if dep_edu_column in numeric_columns:
             min_value = float(remain_dep_edu_df[dep_edu_column].min())
@@ -60,7 +60,7 @@ def listup_app():
             dep_edu_filtered_df = remain_dep_edu_df[
                 (remain_dep_edu_df[dep_edu_column] >= dep_edu_range[0]) & (remain_dep_edu_df[dep_edu_column] <= dep_edu_range[1])]
         else:
-            dep_edu_search_term = st.text_input(f'{dep_edu_column}에서 검색할 내용 입력', key='QWGJK_search_term')
+            dep_edu_search_term = st.text_input(f'{dep_edu_column}에서 검색할 내용 입력', key='dep_edu_search_term')
             if dep_edu_search_term:
                 dep_edu_filtered_df = remain_dep_edu_df[
                     remain_dep_edu_df[dep_edu_column].str.contains(dep_edu_search_term, case=False, na=False)]
