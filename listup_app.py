@@ -23,6 +23,7 @@ def listup_app():
 
         for column in numeric_columns:
             if column in remain_QWGJK_df.columns:
+                remain_QWGJK_df[column] = remain_QWGJK_df[column].replace('None', np.nan)  # 'None'을 NaN으로 대체
                 remain_QWGJK_df[column] = remain_QWGJK_df[column].astype(str).str.replace(',', '').astype(float)
 
         st.markdown("---")
@@ -65,9 +66,8 @@ def listup_app():
 
         for column in numeric_columns:
             if column in remain_dep_edu_df.columns:
-                remain_dep_edu_df[column] = remain_dep_edu_df[column].replace('', np.nan).astype(str).str.replace(',',
-                                                                                                                  '').astype(
-                    float)
+                remain_dep_edu_df[column] = remain_dep_edu_df[column].replace('None', np.nan)  # 'None'을 NaN으로 대체
+                remain_dep_edu_df[column] = remain_dep_edu_df[column].astype(str).str.replace(',', '').astype(float)
 
         st.markdown("---")
         dep_edu_key_column = st.selectbox('필터링할 열 선택', remain_dep_edu_df.columns,
@@ -99,6 +99,7 @@ def listup_app():
         if st.button('교육청 저장'):
             utils.save_dataframe_to_bigquery(dep_edu_editable_df, 'mido_test', 'remain_dep_edu_df')
             utils.save_dataframe_to_bigquery(dep_edu_editable_df, 'mido_test', 'remain_dep_edu_df_save')
+
 
 
     # remain_dep_edu_df, remain_QWGJK_df = utils.load_listup_data()
