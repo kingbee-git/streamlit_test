@@ -54,6 +54,7 @@ def listup_app():
 
         if st.button('지자체 저장'):
             utils.save_dataframe_to_bigquery(QWGJK_editable_df, 'mido_test', 'remain_QWGJK_df')
+            utils.save_dataframe_to_bigquery(QWGJK_editable_df, 'mido_test', 'remain_QWGJK_df_save')
 
     with tab2:
         st.header("**교육청 예산 현황**")
@@ -97,6 +98,7 @@ def listup_app():
 
         if st.button('교육청 저장'):
             utils.save_dataframe_to_bigquery(dep_edu_editable_df, 'mido_test', 'remain_dep_edu_df')
+            utils.save_dataframe_to_bigquery(dep_edu_editable_df, 'mido_test', 'remain_dep_edu_df_save')
 
 
     # cross_dep_edu_df, cross_QWGJK_df, remain_dep_edu_df, remain_QWGJK_df = utils.load_listup_data()
