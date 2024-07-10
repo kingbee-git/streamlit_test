@@ -12,7 +12,7 @@ def listup_app():
     st.header("예산 사업 현황")
     st.markdown("---")
 
-    tab1, tab2 = st.columns(2)
+    tab1, tab2 = st.tabs(["**지자체 예산 현황**", "**교육청 예산 현황**"])
 
     with tab1:
         st.header("**지자체 예산 현황**")
