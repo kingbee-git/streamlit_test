@@ -52,7 +52,7 @@ def listup_app():
             hide_index=True,
         )
 
-        if st.button('저장'):
+        if st.button('지자체 저장'):
             utils.save_dataframe_to_bigquery(QWGJK_editable_df, 'mido_test', 'remain_QWGJK_df')
 
     with tab2:
@@ -95,8 +95,9 @@ def listup_app():
             hide_index=True,
         )
 
-        if st.button('저장'):
+        if st.button('교육청 저장'):
             utils.save_dataframe_to_bigquery(dep_edu_editable_df, 'mido_test', 'remain_dep_edu_df')
+
 
     # cross_dep_edu_df, cross_QWGJK_df, remain_dep_edu_df, remain_QWGJK_df = utils.load_listup_data()
     #
