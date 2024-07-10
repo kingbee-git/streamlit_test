@@ -7,7 +7,7 @@ import pandas as pd
 import utils
 
 def listup_app():
-    cross_dep_edu_df, cross_QWGJK_df, remain_dep_edu_df, remain_QWGJK_df = utils.load_listup_data()
+    remain_dep_edu_df, remain_QWGJK_df = utils.load_listup_data()
 
     st.header("예산 사업 현황")
     st.markdown("---")
@@ -101,7 +101,7 @@ def listup_app():
             utils.save_dataframe_to_bigquery(dep_edu_editable_df, 'mido_test', 'remain_dep_edu_df_save')
 
 
-    # cross_dep_edu_df, cross_QWGJK_df, remain_dep_edu_df, remain_QWGJK_df = utils.load_listup_data()
+    # remain_dep_edu_df, remain_QWGJK_df = utils.load_listup_data()
     #
     # st.header("예산 사업 현황")
     # st.markdown("---")

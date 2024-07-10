@@ -267,10 +267,7 @@ def load_news_data():
 
     return news_df_yesterday, news_df_today
 
-@st.cache_data
 def load_listup_data():
-    cross_dep_edu_df = get_dataframe_from_bigquery('mido_test', 'cross_dep_edu_df')
-    cross_QWGJK_df = get_dataframe_from_bigquery('mido_test', 'cross_QWGJK_df')
     remain_dep_edu_df = get_dataframe_from_bigquery('mido_test', 'remain_dep_edu_df')
     remain_QWGJK_df = get_dataframe_from_bigquery('mido_test', 'remain_QWGJK_df')
 
@@ -280,7 +277,7 @@ def load_listup_data():
     remain_dep_edu_df = remain_dep_edu_df.sort_values(by=['도광역시', '시군구'])
     remain_QWGJK_df = remain_QWGJK_df.sort_values(by=['지역명', '자치단체명'])
 
-    return cross_dep_edu_df, cross_QWGJK_df, remain_dep_edu_df, remain_QWGJK_df
+    return remain_dep_edu_df, remain_QWGJK_df
 
 # @st.cache_data
 # def load_region_geodata():
