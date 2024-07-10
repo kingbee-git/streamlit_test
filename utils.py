@@ -114,11 +114,14 @@ def load_users_data():
 def load_QWGJK_data():
     QWGJK_df_yesterday = get_dataframe_from_bigquery('mido_test', 'QWGJK_df_yesterday')
     QWGJK_df_today = get_dataframe_from_bigquery('mido_test', 'QWGJK_df_today')
+    QWGJK_df_new = get_dataframe_from_bigquery('mido_test', 'QWGJK_df_new')
 
     QWGJK_df_yesterday['회계연도'] = pd.to_datetime(QWGJK_df_yesterday['회계연도'], format='%Y').dt.strftime('%Y')
     QWGJK_df_yesterday['집행일자'] = pd.to_datetime(QWGJK_df_yesterday['집행일자'], format='%Y%m%d').dt.strftime('%Y%m%d')
     QWGJK_df_today['회계연도'] = pd.to_datetime(QWGJK_df_today['회계연도'], format='%Y').dt.strftime('%Y')
     QWGJK_df_today['집행일자'] = pd.to_datetime(QWGJK_df_today['집행일자'], format='%Y%m%d').dt.strftime('%Y%m%d')
+    QWGJK_df_new['회계연도'] = pd.to_datetime(QWGJK_df_new['회계연도'], format='%Y').dt.strftime('%Y')
+    QWGJK_df_new['집행일자'] = pd.to_datetime(QWGJK_df_new['집행일자'], format='%Y%m%d').dt.strftime('%Y%m%d')
 
     columns_to_keep = ['집행일자', '지역명', '자치단체명', '세부사업명', '예산현액', '국비', '시도비', '시군구비', '기타', '지출액', '편성액']
     columns_order = ['집행일자', '지역명', '자치단체명', '세부사업명', '예산현액', '국비', '시도비', '시군구비', '기타', '지출액', '편성액']
@@ -144,12 +147,14 @@ def load_QWGJK_data():
     # 중요도 순서로 정렬
     QWGJK_df_yesterday = QWGJK_df_yesterday.sort_values(by='중요도')
     QWGJK_df_today = QWGJK_df_today.sort_values(by='중요도')
+    QWGJK_df_new = QWGJK_df_new.sort_values(by='집행일자')
+
 
     # 중요도 컬럼 제거 (원하지 않으면)
     QWGJK_df_yesterday = QWGJK_df_yesterday.drop(columns=['중요도'])
     QWGJK_df_today = QWGJK_df_today.drop(columns=['중요도'])
 
-    return QWGJK_df_yesterday, QWGJK_df_today
+    return QWGJK_df_yesterday, QWGJK_df_today, QWGJK_df_new
 
 @st.cache_data
 def load_dep_edu_data():

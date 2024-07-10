@@ -6,7 +6,7 @@ import pandas as pd
 import utils
 
 def QWGJK_app():
-    QWGJK_df_yesterday, QWGJK_df_today = utils.load_QWGJK_data()
+    QWGJK_df_yesterday, QWGJK_df_today, QWGJK_df_news = utils.load_QWGJK_data()
 
     st.subheader("지자체 예산")
 
@@ -39,28 +39,28 @@ def QWGJK_app():
     st.write(f"{len(QWGJK_new_filtered_df)} 건")
     st.dataframe(QWGJK_new_filtered_df, hide_index=True)
 
-    st.markdown("<h5>지자체 예산 금일 지출결의 종료 된 건 입니다.</h5>", unsafe_allow_html=True)
-    QWGJK_end_column_index = QWGJK_end.columns.get_loc(QWGJK_key_column)
-    QWGJK_end_column = st.selectbox('필터링할 열 선택', QWGJK_end.columns, index=QWGJK_end_column_index,
-                                    key='QWGJK_end_column')
+    st.markdown("<h5>지자체 예산 금일 지출결의 된 누적 건 입니다.</h5>", unsafe_allow_html=True)
+    QWGJK_df_news_column_index = QWGJK_df_news.columns.get_loc(QWGJK_key_column)
+    QWGJK_df_news_column = st.selectbox('필터링할 열 선택', QWGJK_df_news.columns, index=QWGJK_df_news_column_index,
+                                    key='QWGJK_df_news_column')
 
-    if QWGJK_end_column in numeric_columns:
-        min_value = float(QWGJK_end[QWGJK_end_column].min())
-        max_value = float(QWGJK_end[QWGJK_end_column].max())
-        QWGJK_end_range = st.slider(f'{QWGJK_end_column}에서 검색할 범위 선택', min_value=min_value, max_value=max_value,
-                                    value=(min_value, max_value), key='QWGJK_end_range')
-        QWGJK_end_filtered_df = QWGJK_end[
-            (QWGJK_end[QWGJK_end_column] >= QWGJK_end_range[0]) & (QWGJK_end[QWGJK_end_column] <= QWGJK_end_range[1])]
+    if QWGJK_df_news_column in numeric_columns:
+        min_value = float(QWGJK_end[QWGJK_df_news_column].min())
+        max_value = float(QWGJK_end[QWGJK_df_news_column].max())
+        QWGJK_df_news_range = st.slider(f'{QWGJK_df_news_column}에서 검색할 범위 선택', min_value=min_value, max_value=max_value,
+                                    value=(min_value, max_value), key='QWGJK_df_news_range')
+        QWGJK_df_news_filtered_df = QWGJK_df_news[
+            (QWGJK_df_news[QWGJK_df_news_column] >= QWGJK_df_news_range[0]) & (QWGJK_df_news[QWGJK_df_news_column] <= QWGJK_df_news_range[1])]
     else:
-        QWGJK_end_search_term = st.text_input(f'{QWGJK_end_column}에서 검색할 내용 입력', key='QWGJK_end_search_term')
-        if QWGJK_end_search_term:
-            QWGJK_end_filtered_df = QWGJK_end[
-                QWGJK_end[QWGJK_end_column].str.contains(QWGJK_end_search_term, case=False, na=False)]
+        QWGJK_df_news_search_term = st.text_input(f'{QWGJK_df_news_column}에서 검색할 내용 입력', key='QWGJK_df_news_search_term')
+        if QWGJK_df_news_search_term:
+            QWGJK_df_news_filtered_df = QWGJK_df_news[
+                QWGJK_df_news[QWGJK_df_news_column].str.contains(QWGJK_df_news_search_term, case=False, na=False)]
         else:
-            QWGJK_end_filtered_df = QWGJK_end
+            QWGJK_df_news_filtered_df = QWGJK_df_news
 
-    st.write(f"{len(QWGJK_end_filtered_df)} 건")
-    st.dataframe(QWGJK_end_filtered_df, hide_index=True)
+    st.write(f"{len(QWGJK_df_news_filtered_df)} 건")
+    st.dataframe(QWGJK_df_news_filtered_df, hide_index=True)
 
     st.markdown("<h5>키워드 내 지자체 예산 전체 입니다.</h5>", unsafe_allow_html=True)
     QWGJK_column_index = QWGJK_df_today.columns.get_loc(QWGJK_key_column)
