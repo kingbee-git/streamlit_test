@@ -19,12 +19,12 @@ def listup_app():
         st.markdown("---")
 
         numeric_columns = ['예산현액', '국비', '시도비', '시군구비', '기타', '지출액', '편성액']
-        remain_QWGJK_df['삭제'] = False  # 삭제 여부 컬럼 추가
+        # remain_QWGJK_df['삭제'] = False  # 삭제 여부 컬럼 추가
 
+        # 'None'을 NaN으로 대체하고 숫자형으로 변환
         for column in numeric_columns:
-            if column in remain_QWGJK_df.columns:
-                remain_QWGJK_df[column] = remain_QWGJK_df[column].replace('None', np.nan)  # 'None'을 NaN으로 대체
-                remain_QWGJK_df[column] = remain_QWGJK_df[column].astype(str).str.replace(',', '').astype(float)
+            remain_QWGJK_df[column] = remain_QWGJK_df[column].replace('None', np.nan)
+            remain_QWGJK_df[column] = pd.to_numeric(remain_QWGJK_df[column].astype(str).str.replace(',', ''), errors='coerce')
 
         st.markdown("---")
         QWGJK_key_column = st.selectbox('필터링할 열 선택', remain_QWGJK_df.columns,
@@ -57,17 +57,20 @@ def listup_app():
             utils.save_dataframe_to_bigquery(QWGJK_editable_df, 'mido_test', 'remain_QWGJK_df')
             utils.save_dataframe_to_bigquery(QWGJK_editable_df, 'mido_test', 'remain_QWGJK_df_save')
 
+            st.success('지자체 예산 현황이 성공적으로 저장되었습니다.')
+
     with tab2:
         st.header("**교육청 예산 현황**")
         st.markdown("---")
 
         numeric_columns = ['금액', '면적']
-        remain_dep_edu_df['삭제'] = False  # 삭제 여부 컬럼 추가
+        # remain_dep_edu_df['삭제'] = False  # 삭제 여부 컬럼 추가
 
+
+        # 'None'을 NaN으로 대체하고 숫자형으로 변환
         for column in numeric_columns:
-            if column in remain_dep_edu_df.columns:
-                remain_dep_edu_df[column] = remain_dep_edu_df[column].replace('None', np.nan)  # 'None'을 NaN으로 대체
-                remain_dep_edu_df[column] = remain_dep_edu_df[column].astype(str).str.replace(',', '').astype(float)
+            remain_dep_edu_df[column] = remain_dep_edu_df[column].replace('None', np.nan)
+            remain_dep_edu_df[column] = pd.to_numeric(remain_dep_edu_df[column].astype(str).str.replace(',', ''), errors='coerce')
 
         st.markdown("---")
         dep_edu_key_column = st.selectbox('필터링할 열 선택', remain_dep_edu_df.columns,
@@ -99,6 +102,8 @@ def listup_app():
         if st.button('교육청 저장'):
             utils.save_dataframe_to_bigquery(dep_edu_editable_df, 'mido_test', 'remain_dep_edu_df')
             utils.save_dataframe_to_bigquery(dep_edu_editable_df, 'mido_test', 'remain_dep_edu_df_save')
+
+            st.success('교육청 예산 현황이 성공적으로 저장되었습니다.')
 
 
 

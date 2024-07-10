@@ -267,12 +267,14 @@ def load_news_data():
 
     return news_df_yesterday, news_df_today
 
+
+@st.cache_data
 def load_listup_data():
     remain_dep_edu_df = get_dataframe_from_bigquery('mido_test', 'remain_dep_edu_df')
     remain_QWGJK_df = get_dataframe_from_bigquery('mido_test', 'remain_QWGJK_df')
 
-    remain_dep_edu_df = remain_dep_edu_df[['도광역시', '시군구', '구분', '과업명', '금액', '면적', '예산집행']]
-    remain_QWGJK_df = remain_QWGJK_df[['지역명', '자치단체명', '세부사업명', '예산현액', '국비', '시도비', '시군구비', '기타', '지출액', '편성액']]
+    remain_dep_edu_df = remain_dep_edu_df[['도광역시', '시군구', '구분', '과업명', '금액', '면적', '예산집행', '삭제']]
+    remain_QWGJK_df = remain_QWGJK_df[['지역명', '자치단체명', '세부사업명', '예산현액', '국비', '시도비', '시군구비', '기타', '지출액', '편성액', '삭제']]
 
     remain_dep_edu_df = remain_dep_edu_df.sort_values(by=['도광역시', '시군구'])
     remain_QWGJK_df = remain_QWGJK_df.sort_values(by=['지역명', '자치단체명'])
