@@ -263,13 +263,6 @@ def load_news_data():
     return news_df_yesterday, news_df_today
 
 @st.cache_data
-def load_orderlist_data():
-    orderlist = get_dataframe_from_bigquery('mido_test', 'order_test')
-
-    return orderlist
-
-
-@st.cache_data
 def load_listup_data():
     cross_dep_edu_df = get_dataframe_from_bigquery('mido_test', 'cross_dep_edu_df')
     cross_QWGJK_df = get_dataframe_from_bigquery('mido_test', 'cross_QWGJK_df')

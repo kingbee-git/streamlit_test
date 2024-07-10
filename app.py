@@ -10,9 +10,6 @@ import DepEdu_app
 import info21C_app
 import nara_app
 import news_app
-import orderlist_app
-import orderlist_realtime_app
-import orderlist_updated_app
 import stat_app
 
 import time
@@ -100,8 +97,8 @@ def main():
                 "nav-link-selected": {"background-color": "#02ab21", "color": "#fff"},
             }
 
-            selected = option_menu("Mido Plus", ["납품 현황", "사업 현황", "지자체 예산서", "교육청 예산서", "인포21C", "종합쇼핑몰 납품상세 내역", "뉴스", "orderlist", "orderlist_realtime", "orderlist_updated", "STAT"],
-                                   icons=["graph-up-arrow", "list-check", "building", "building", "info-square", "cart4", "pencil-square", "gear", "gear", "gear", "clipboard-data"],
+            selected = option_menu("Mido Plus", ["납품 현황", "사업 현황", "지자체 예산서", "교육청 예산서", "인포21C", "종합쇼핑몰 납품상세 내역", "뉴스", "STAT"],
+                                   icons=["graph-up-arrow", "list-check", "building", "building", "info-square", "cart4", "pencil-square", "clipboard-data"],
                                    menu_icon="cast",
                                    default_index=0,
                                    orientation="vertical",
@@ -130,15 +127,6 @@ def main():
         elif selected == "뉴스":
             utils.log_user_action(st.session_state['username'], "viewed 뉴스", "mido_test", "logs")
             news_app.news_app()
-        elif selected == "orderlist":
-            utils.log_user_action(st.session_state['username'], "viewed orderlist", "mido_test", "logs")
-            orderlist_app.orderlist_app()
-        elif selected == "orderlist_realtime":
-            utils.log_user_action(st.session_state['username'], "viewed orderlist_realtime", "mido_test", "logs")
-            orderlist_realtime_app.orderlist_realtime_app()
-        elif selected == "orderlist_updated":
-            utils.log_user_action(st.session_state['username'], "viewed orderlist_updated", "mido_test", "logs")
-            orderlist_updated_app.orderlist_updated_app()
         elif selected == "STAT":
             utils.log_user_action(st.session_state['username'], "viewed STAT", "mido_test", "logs")
             stat_app.stat_app()
