@@ -110,7 +110,7 @@ def load_users_data():
 
     return users
 
-@st.cache_data
+@st.cache_data(ttl=3600)
 def load_QWGJK_data():
     QWGJK_df_yesterday = get_dataframe_from_bigquery('mido_test', 'QWGJK_df_yesterday')
     QWGJK_df_today = get_dataframe_from_bigquery('mido_test', 'QWGJK_df_today')
@@ -156,7 +156,7 @@ def load_QWGJK_data():
 
     return QWGJK_df_yesterday, QWGJK_df_today, QWGJK_df_new
 
-@st.cache_data
+@st.cache_data(ttl=3600)
 def load_dep_edu_data():
     dep_edu_df = get_dataframe_from_bigquery('mido_test', 'dep_edu_df')
 
@@ -168,7 +168,7 @@ def load_dep_edu_data():
 
     return dep_edu_df
 
-@st.cache_data
+@st.cache_data(ttl=3600)
 def load_bid_con_data():
     bir_con_df_yesterday = get_dataframe_from_bigquery('mido_test', 'bir_con_df_yesterday')
     bir_con_df_today = get_dataframe_from_bigquery('mido_test', 'bir_con_df_today')
@@ -183,7 +183,7 @@ def load_bid_con_data():
 
     return bir_con_df_yesterday, bir_con_df_today
 
-@st.cache_data
+@st.cache_data(ttl=3600)
 def load_bid_ser_data():
     bir_ser_df_yesterday = get_dataframe_from_bigquery('mido_test', 'bir_ser_df_yesterday')
     bir_ser_df_today = get_dataframe_from_bigquery('mido_test', 'bir_ser_df_today')
@@ -197,7 +197,7 @@ def load_bid_ser_data():
 
     return bir_ser_df_yesterday, bir_ser_df_today
 
-@st.cache_data
+@st.cache_data(ttl=3600)
 def load_bid_pur_data():
     bir_pur_df_yesterday = get_dataframe_from_bigquery('mido_test', 'bir_pur_df_yesterday')
     bir_pur_df_today = get_dataframe_from_bigquery('mido_test', 'bir_pur_df_today')
@@ -211,7 +211,7 @@ def load_bid_pur_data():
 
     return bir_pur_df_yesterday, bir_pur_df_today
 
-@st.cache_data
+@st.cache_data(ttl=3600)
 def load_nara_data():
     nara_df = get_dataframe_from_bigquery('mido_test', 'nara_df')
 
@@ -238,7 +238,7 @@ def load_nara_data():
 
     return nara_df
 
-@st.cache_data
+@st.cache_data(ttl=3600)
 def load_news_data():
     news_df_yesterday = get_dataframe_from_bigquery('mido_test', 'news_df_yesterday').sort_values('기사날짜', ascending=False)
     news_df_today = get_dataframe_from_bigquery('mido_test', 'news_df_today').sort_values('기사날짜', ascending=False)
@@ -268,6 +268,7 @@ def load_news_data():
     return news_df_yesterday, news_df_today
 
 
+@st.cache_data(ttl=600)
 def load_listup_data():
     remain_dep_edu_df = get_dataframe_from_bigquery('mido_test', 'remain_dep_edu_df')
     remain_QWGJK_df = get_dataframe_from_bigquery('mido_test', 'remain_QWGJK_df')
