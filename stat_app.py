@@ -250,4 +250,14 @@ def stat_app():
 
 
     st.markdown("---")
-    st.dataframe(filtered_data)
+
+    veiw_columns = [
+        '납품요구접수일자', '수요기관명', '납품요구건명', '단가', '단위', '수량', '금액', '품목', '업체명'
+    ]
+
+    filtered_data['납품요구접수일자'] = filtered_data['납품요구접수일자'].dt.strftime('%Y-%m-%d')
+
+    st.dataframe(
+        filtered_data[veiw_columns].sort_values(by='납품요구접수일자'),
+        hide_index=True,
+    )
