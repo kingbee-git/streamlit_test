@@ -47,18 +47,36 @@ def listup_app():
                 QWGJK_filtered_df = remain_QWGJK_df
 
         st.markdown("---")
-        st.write(f"{len(QWGJK_filtered_df)} 건")
-        QWGJK_editable_df = st.data_editor(
-            QWGJK_filtered_df,
+        QWGJK_editable_df_display = QWGJK_filtered_df[QWGJK_filtered_df['삭제'] == False]
+        st.write(f"{len(QWGJK_editable_df_display)} 건")
+
+        edited_data_QWGJK = st.data_editor(
+            QWGJK_editable_df_display,
             hide_index=True,
         )
 
+        # 원본 데이터 프레임 업데이트: 인덱스를 기준으로 편집된 데이터 반영
+        remain_QWGJK_df.loc[edited_data_QWGJK.index, :] = edited_data_QWGJK
+
         if st.button('지자체 저장'):
-            utils.save_dataframe_to_bigquery(QWGJK_editable_df, 'mido_test', 'remain_QWGJK_df')
-            utils.save_dataframe_to_bigquery(QWGJK_editable_df, 'mido_test', 'remain_QWGJK_df_save')
+            utils.save_dataframe_to_bigquery(remain_QWGJK_df, 'mido_test', 'remain_QWGJK_df')
+            utils.save_dataframe_to_bigquery(remain_QWGJK_df, 'mido_test', 'remain_QWGJK_df_save')
             utils.log_user_action(st.session_state['username'], "save list 지자체 현황", "mido_test", "logs")
 
             st.success('지자체 예산 현황이 성공적으로 저장되었습니다.')
+
+        # st.write(f"{len(QWGJK_filtered_df[QWGJK_filtered_df['삭제']==False])} 건")
+        # QWGJK_editable_df = st.data_editor(
+        #     QWGJK_filtered_df[QWGJK_filtered_df['삭제']==False],
+        #     hide_index=True,
+        # )
+        #
+        # if st.button('지자체 저장'):
+        #     utils.save_dataframe_to_bigquery(QWGJK_editable_df, 'mido_test', 'remain_QWGJK_df')
+        #     utils.save_dataframe_to_bigquery(QWGJK_editable_df, 'mido_test', 'remain_QWGJK_df_save')
+        #     utils.log_user_action(st.session_state['username'], "save list 지자체 현황", "mido_test", "logs")
+        #
+        #     st.success('지자체 예산 현황이 성공적으로 저장되었습니다.')
 
 
     with tab2:
@@ -95,18 +113,36 @@ def listup_app():
                 dep_edu_filtered_df = remain_dep_edu_df
 
         st.markdown("---")
-        st.write(f"{len(dep_edu_filtered_df)} 건")
-        dep_edu_editable_df = st.data_editor(
-            dep_edu_filtered_df,
+        dep_edu_editable_df_display = dep_edu_filtered_df[dep_edu_filtered_df['삭제'] == False]
+        st.write(f"{len(dep_edu_editable_df_display)} 건")
+
+        edited_data_dep_edu = st.data_editor(
+            dep_edu_editable_df_display,
             hide_index=True,
         )
 
+        # 원본 데이터 프레임 업데이트: 인덱스를 기준으로 편집된 데이터 반영
+        remain_dep_edu_df.loc[edited_data_dep_edu.index, :] = edited_data_dep_edu
+
         if st.button('교육청 저장'):
-            utils.save_dataframe_to_bigquery(dep_edu_editable_df, 'mido_test', 'remain_dep_edu_df')
-            utils.save_dataframe_to_bigquery(dep_edu_editable_df, 'mido_test', 'remain_dep_edu_df_save')
+            utils.save_dataframe_to_bigquery(remain_dep_edu_df, 'mido_test', 'remain_dep_edu_df')
+            utils.save_dataframe_to_bigquery(remain_dep_edu_df, 'mido_test', 'remain_dep_edu_df_save')
             utils.log_user_action(st.session_state['username'], "save list 교육청 현황", "mido_test", "logs")
 
             st.success('교육청 예산 현황이 성공적으로 저장되었습니다.')
+
+        # st.write(f"{len(dep_edu_filtered_df[dep_edu_filtered_df['삭제']==False])} 건")
+        # dep_edu_editable_df = st.data_editor(
+        #     dep_edu_filtered_df[dep_edu_filtered_df['삭제']==False],
+        #     hide_index=True,
+        # )
+        #
+        # if st.button('교육청 저장'):
+        #     utils.save_dataframe_to_bigquery(dep_edu_editable_df, 'mido_test', 'remain_dep_edu_df')
+        #     utils.save_dataframe_to_bigquery(dep_edu_editable_df, 'mido_test', 'remain_dep_edu_df_save')
+        #     utils.log_user_action(st.session_state['username'], "save list 교육청 현황", "mido_test", "logs")
+        #
+        #     st.success('교육청 예산 현황이 성공적으로 저장되었습니다.')
 
 
 
