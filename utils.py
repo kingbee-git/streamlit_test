@@ -279,7 +279,11 @@ def load_g2b_data():
         regions = json.load(file)
 
     def get_lat_long(row):
-        region_key = f"{row['도광역시']}/{row['시군구']}"
+        if pd.isna(row['시군구']):
+            region_key = f"{row['도광역시']}/"
+        else:
+            region_key = f"{row['도광역시']}/{row['시군구']}"
+
         if region_key in regions:
             return regions[region_key]["lat"], regions[region_key]["long"]
         else:
