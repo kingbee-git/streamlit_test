@@ -241,6 +241,7 @@ def stat_app():
                 hover_name="업체명",
                 hover_data={size_col: True},
                 zoom=5,
+                opacity=0.3,
                 mapbox_style="open-street-map"  # 필요시 API 키를 사용하여 변경
             )
             st.write(fig2)
