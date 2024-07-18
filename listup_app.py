@@ -60,7 +60,7 @@ def listup_app():
 
         if st.button('지자체 저장'):
             utils.save_dataframe_to_bigquery(remain_QWGJK_df, 'mido_test', 'remain_QWGJK_df')
-            utils.save_dataframe_to_bigquery(remain_QWGJK_df, 'mido_test', 'remain_QWGJK_df_save')
+            # utils.save_dataframe_to_bigquery(remain_QWGJK_df, 'mido_test', 'remain_QWGJK_df_save')
             utils.log_user_action(st.session_state['username'], "save list 지자체 현황", "mido_test", "logs")
 
             st.success('지자체 예산 현황이 성공적으로 저장되었습니다.')
@@ -126,7 +126,7 @@ def listup_app():
 
         if st.button('교육청 저장'):
             utils.save_dataframe_to_bigquery(remain_dep_edu_df, 'mido_test', 'remain_dep_edu_df')
-            utils.save_dataframe_to_bigquery(remain_dep_edu_df, 'mido_test', 'remain_dep_edu_df_save')
+            # utils.save_dataframe_to_bigquery(remain_dep_edu_df, 'mido_test', 'remain_dep_edu_df_save')
             utils.log_user_action(st.session_state['username'], "save list 교육청 현황", "mido_test", "logs")
 
             st.success('교육청 예산 현황이 성공적으로 저장되었습니다.')
