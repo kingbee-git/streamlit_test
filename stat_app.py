@@ -258,6 +258,6 @@ def stat_app():
     filtered_data['납품요구접수일자'] = filtered_data['납품요구접수일자'].dt.strftime('%Y-%m-%d')
 
     st.dataframe(
-        filtered_data[veiw_columns].sort_values(by='납품요구접수일자'),
+        filtered_data[veiw_columns].sort_values(by='납품요구접수일자', ascending=False),
         hide_index=True,
     )
