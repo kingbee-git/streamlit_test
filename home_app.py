@@ -145,42 +145,36 @@ def home_app():
     with col2:
         st.write("")
 
-        # # EPSG:4326 좌표계로 변환
-        # region_geodata = region_geodata.to_crs(epsg=4326)
+        # # NaN 값을 가진 행을 제거
+        # nara_df = nara_df.dropna(subset=['위도', '경도'])
         #
-        # # 중심점 계산
-        # region_geodata['centroid'] = region_geodata.geometry.centroid
+        # # 위도와 경도를 숫자로 변환 (문자열을 숫자로 변환할 수 없는 경우 NaN으로 처리)
+        # nara_df['위도'] = pd.to_numeric(nara_df['위도'], errors='coerce')
+        # nara_df['경도'] = pd.to_numeric(nara_df['경도'], errors='coerce')
         #
-        # # 중심점을 데이터프레임으로 변환
-        # df = pd.DataFrame({
-        #     'name': region_geodata['지역담당자'],
-        #     'lon': region_geodata['centroid'].x,
-        #     'lat': region_geodata['centroid'].y
-        # })
+        # # NaN 값을 가진 행 제거
+        # nara_df = nara_df.dropna(subset=['위도', '경도'])
         #
-        # # 결과 데이터프레임 출력
-        # st.dataframe(df)
+        # # 데이터 타입 변환
+        # nara_df[size_col] = pd.to_numeric(nara_df[size_col], errors='coerce')
         #
-        # # Pydeck 시각화 (멀티폴리곤 포함)
-        # geojson = region_geodata.__geo_interface__
+        # # Pydeck 지도 생성
         # layer = pdk.Layer(
-        #     'GeoJsonLayer',
-        #     geojson,
-        #     pickable=True,
-        #     stroked=True,
-        #     filled=True,
-        #     extruded=False,
-        #     get_fill_color='[200, 30, 0, 160]',
-        #     get_line_color=[0, 0, 0],
-        #     get_line_width=2,
+        #     'ScatterplotLayer',
+        #     data=nara_df,
+        #     get_position='[경도, 위도]',
+        #     get_color='[200, 30, 0, 160]',
+        #     get_radius=size_col,
+        #     pickable=True
         # )
         #
         # view_state = pdk.ViewState(
-        #     latitude=df['lat'].mean(),
-        #     longitude=df['lon'].mean(),
-        #     zoom=6,
-        #     pitch=0,
+        #     latitude=nara_df['위도'].mean(),
+        #     longitude=nara_df['경도'].mean(),
+        #     zoom=5,
+        #     pitch=50
         # )
         #
-        # deck = pdk.Deck(layers=[layer], initial_view_state=view_state)
-        # st.pydeck_chart(deck)
+        # r = pdk.Deck(layers=[layer], initial_view_state=view_state,
+        #              tooltip={"text": "{업체명}\n" + size_col + ": {" + size_col + "}"})
+        # st.pydeck_chart(r)
