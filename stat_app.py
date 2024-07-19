@@ -193,8 +193,6 @@ def stat_app():
         # 상위 N개 선택
         top_n = st.sidebar.slider("상위 몇 개의 회사", min_value=1, max_value=len(filtered_data['업체명'].unique()), value=len(filtered_data['업체명'].unique()))
 
-    st.markdown(filtered_data['업체명'].unique())
-
     # 차트 표시
     fig_col1, space, fig_col2 = st.columns([5, 0.1, 5])
 
