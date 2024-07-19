@@ -178,11 +178,25 @@ def stat_app():
 
     st.markdown("---")
 
-    # 라디오 버튼 추가
-    metric_to_plot = st.radio("차트에 표시할 항목을 선택하세요:", ("단가", "수량", "금액"))
+    # 색상 팔레트 정의
+    color_map = px.colors.qualitative.Plotly
+    unique_companies = filtered_data['업체명'].unique()
+    color_discrete_map = {company: color_map[i % len(color_map)] for i, company in enumerate(unique_companies)}
+
+    col3, space, col4, space = st.columns([1, 0.1, 1, 5])
+
+    with col3:
+        # 차트에 표시할 항목 선택
+        metric_to_plot = st.sidebar.radio("차트에 표시할 항목", ("단가", "수량", "금액"))
+
+    with col4:
+        # 상위 N개 선택
+        top_n = st.sidebar.slider("상위 몇 개의 회사", min_value=1, max_value=len(filtered_data['업체명'].unique()), value=len(filtered_data['업체명'].unique()))
+
+    st.markdown(filtered_data['업체명'].unique())
 
     # 차트 표시
-    fig_col1, fig_col2 = st.columns(2)
+    fig_col1, space, fig_col2 = st.columns([5, 0.1, 5])
 
     with fig_col1:
         st.markdown("### 차트")
@@ -190,29 +204,43 @@ def stat_app():
         if metric_to_plot == "단가":
             # 평균 단가 계산
             avg_price = filtered_data.groupby("업체명")["단가"].mean().reset_index()
-            fig = px.bar(avg_price, x="업체명", y="단가", title="업체별 평균 단가 차트")
-            fig.update_layout(yaxis_title="단가 (원)")  # 원화 단위 추가
+            # 상위 N개 선택
+            top_avg_price = avg_price.nlargest(top_n, '단가')
+            fig = px.bar(top_avg_price, x="업체명", y="단가", title=f"상위 {top_n} 업체별 평균 단가 차트", color='업체명',
+                         color_discrete_map=color_discrete_map)
+            fig.update_layout(yaxis_title="단가 (원)")
         elif metric_to_plot == "수량":
             # 수량 합계 계산
             total_quantity = filtered_data.groupby("업체명")["수량"].sum().reset_index()
-            fig = px.bar(total_quantity, x="업체명", y="수량", title="업체별 수량 차트")
-            fig.update_layout(yaxis_title="수량")  # 수량 단위 추가
+            # 상위 N개 선택
+            top_total_quantity = total_quantity.nlargest(top_n, '수량')
+            fig = px.bar(top_total_quantity, x="업체명", y="수량", title=f"상위 {top_n} 업체별 수량 차트", color='업체명',
+                         color_discrete_map=color_discrete_map)
+            fig.update_layout(yaxis_title="수량")
         else:
             # 금액 합계 계산
             total_amount = filtered_data.groupby("업체명")["금액"].sum().reset_index()
-            fig = px.bar(total_amount, x="업체명", y="금액", title="업체별 금액 차트")
-            fig.update_layout(yaxis_title="금액 (원)")  # 원화 단위 추가
+            # 상위 N개 선택
+            top_total_amount = total_amount.nlargest(top_n, '금액')
+            fig = px.bar(top_total_amount, x="업체명", y="금액", title=f"상위 {top_n} 업체별 금액 차트", color='업체명',
+                         color_discrete_map=color_discrete_map)
+            fig.update_layout(yaxis_title="금액 (원)")
 
         # 모든 값 표시
-        fig.update_traces(texttemplate='%{y:.0f}', textposition='outside')  # 소수점 없이 모든 값 표시
+        fig.update_traces(texttemplate='%{y:.0f}', textposition='outside')
 
         st.write(fig)
+
+    # 지도에 사용할 데이터도 상위 N개의 회사로 제한
+    top_companies = top_avg_price if metric_to_plot == "단가" else top_total_quantity if metric_to_plot == "수량" else top_total_amount
+    top_company_names = top_companies['업체명'].tolist()
+    valid_data = filtered_data[filtered_data['업체명'].isin(top_company_names)]
 
     with fig_col2:
         st.markdown("### 지도")
 
         # NaN 값을 가진 행을 제거
-        valid_data = filtered_data.dropna(subset=['위도', '경도'])
+        valid_data = valid_data.dropna(subset=['위도', '경도'])
 
         # 위도와 경도를 숫자로 변환 (문자열을 숫자로 변환할 수 없는 경우 NaN으로 처리)
         valid_data['위도'] = pd.to_numeric(valid_data['위도'], errors='coerce')
@@ -238,6 +266,7 @@ def stat_app():
                 lon="경도",
                 size=size_col,
                 color="업체명",
+                color_discrete_map = color_discrete_map,
                 hover_name="업체명",
                 hover_data={size_col: True},
                 zoom=5,
@@ -248,29 +277,27 @@ def stat_app():
         else:
             st.error("위도와 경도 데이터가 필요합니다. 데이터를 확인하세요.")
 
-
     st.markdown("---")
 
-    filtered_data['납품요구접수일자'] = filtered_data['납품요구접수일자'].dt.strftime('%Y-%m-%d')
+    filtered_data['납품요구접수일자'] = pd.to_datetime(filtered_data['납품요구접수일자']).dt.strftime('%Y-%m-%d')
 
-    veiw_columns = [
+    view_columns = [
         '납품요구접수일자', '수요기관명', '납품요구건명', '단가', '단위', '수량', '금액', '품목', '업체명'
     ]
 
     key_column = st.selectbox(
         '필터링할 열 선택',
-        ['납품요구접수일자', '수요기관명', '납품요구건명', '업체명']
+        ['납품요구접수일자', '수요기관명', '납품요구건명', '업체명'],
+        index=2
     )
 
     search_term = st.text_input(f'{key_column}에서 검색할 내용 입력', key='search_term')
 
     if search_term:
         filtered_data = filtered_data[filtered_data[key_column].str.contains(search_term, case=False, na=False)]
-    else:
-        filtered_data = filtered_data
 
     # 데이터프레임 출력
     st.dataframe(
-        filtered_data[veiw_columns].sort_values(by='납품요구접수일자', ascending=False),
+        filtered_data[view_columns].sort_values(by='납품요구접수일자', ascending=False),
         hide_index=True
     )
