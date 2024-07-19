@@ -8,11 +8,14 @@ def nara_app():
         nara_df = utils.load_nara_data()
 
         nara_df_key_column = '납품요구건명'
+        nara_veiw_column = [
+            '납품요구접수일자', '수요기관명', '납품요구건명', '업체명', '금액', '수량', '단위', '단가', '품목'
+        ]
 
         st.markdown("<h5>종합쇼핑몰 납품상세내역 입니다.</h5>", unsafe_allow_html=True)
         nara_column_index = nara_df.columns.get_loc(nara_df_key_column)
-        nara_column = st.selectbox('필터링할 열 선택', nara_df.columns, index=nara_column_index)
-        nara_search_term = st.text_input(f'{nara_column}에서 검색할 내용 입력', key='bid_con_search')
+        nara_column = st.selectbox('필터링할 열 선택', nara_veiw_column, index=nara_column_index)
+        nara_search_term = st.text_input(f'{nara_column}에서 검색할 내용 입력', key='nara_search_term')
 
         if nara_column in ['단가', '수량', '금액', '납품요구금액']:
             nara_df[nara_column] = nara_df[nara_column].replace(',', '', regex=True).astype(float)
@@ -38,7 +41,7 @@ def nara_app():
             ]
 
         st.write(f"{len(nara_filtered_df)} 건")
-        st.dataframe(nara_filtered_df, hide_index=True)
+        st.dataframe(nara_filtered_df[nara_veiw_column], hide_index=True)
 
     except Exception as e:
         st.error(f"An error occurred: {e}")

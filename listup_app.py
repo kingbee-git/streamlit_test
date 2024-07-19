@@ -26,7 +26,6 @@ def listup_app():
             remain_QWGJK_df[column] = remain_QWGJK_df[column].replace('None', np.nan)
             remain_QWGJK_df[column] = pd.to_numeric(remain_QWGJK_df[column].astype(str).str.replace(',', ''), errors='coerce')
 
-        st.markdown("---")
         QWGJK_key_column = st.selectbox('필터링할 열 선택', remain_QWGJK_df.columns,
                                         index=remain_QWGJK_df.columns.get_loc('세부사업명'))
 
@@ -92,7 +91,6 @@ def listup_app():
             remain_dep_edu_df[column] = remain_dep_edu_df[column].replace('None', np.nan)
             remain_dep_edu_df[column] = pd.to_numeric(remain_dep_edu_df[column].astype(str).str.replace(',', ''), errors='coerce')
 
-        st.markdown("---")
         dep_edu_key_column = st.selectbox('필터링할 열 선택', remain_dep_edu_df.columns,
                                           index=remain_dep_edu_df.columns.get_loc('과업명'))
 

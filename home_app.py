@@ -88,81 +88,62 @@ def plot_company_data(nara_df, company_keywords, total_amount_total=None):
 
 def home_app():
     nara_df = utils.load_nara_data()
+
     nara_select_df = nara_df[nara_df['업체명'].str.contains('미도플러스|에코그라운드')]
 
-    col1, col2 = st.columns([1, 1])
+    try:
+        nara_df_key_column = '납품요구건명'
+        nara_veiw_column = [
+            '납품요구접수일자', '수요기관명', '납품요구건명', '업체명', '금액', '수량', '단위', '단가', '품목'
+        ]
 
-    with col1:
-        try:
-            nara_df_key_column = '납품요구건명'
+        st.markdown("<h4>종합쇼핑몰 납품상세내역 현황</h4>", unsafe_allow_html=True)
+        nara_column_index = nara_select_df.columns.get_loc(nara_df_key_column)
+        nara_column = st.selectbox('필터링할 열 선택', nara_veiw_column, index=nara_column_index)
+        nara_search_term = st.text_input(f'{nara_column}에서 검색할 내용 입력', key='nara_search_term')
 
-            st.markdown("<h5>종합쇼핑몰 납품상세내역 현황 입니다.</h5>", unsafe_allow_html=True)
-            nara_column_index = nara_select_df.columns.get_loc(nara_df_key_column)
-            nara_column = st.selectbox('필터링할 열 선택', nara_select_df.columns, index=nara_column_index)
-            nara_search_term = st.text_input(f'{nara_column}에서 검색할 내용 입력', key='bid_con_search')
+        if nara_column in ['단가', '수량', '금액', '납품요구금액']:
+            nara_select_df[nara_column] = nara_select_df[nara_column].replace(',', '', regex=True).astype(float)
+            min_value = float(nara_select_df[nara_column].min())
+            max_value = float(nara_select_df[nara_column].max())
+            range_values = st.slider(f'{nara_column} 범위 선택', min_value, max_value, (min_value, max_value))
 
-            if nara_column in ['단가', '수량', '금액', '납품요구금액']:
-                nara_select_df[nara_column] = nara_select_df[nara_column].replace(',', '', regex=True).astype(float)
-                min_value = float(nara_select_df[nara_column].min())
-                max_value = float(nara_select_df[nara_column].max())
-                range_values = st.slider(f'{nara_column} 범위 선택', min_value, max_value, (min_value, max_value))
-
-            if nara_search_term:
-                if nara_select_df[nara_column].dtype == 'object':
-                    nara_filtered_df = nara_select_df[
-                        nara_select_df[nara_column].str.contains(nara_search_term, case=False, na=False)]
-                elif pd.api.types.is_numeric_dtype(nara_select_df[nara_column]):
-                    search_term_cleaned = nara_search_term.replace(',', '')
-                    nara_filtered_df = nara_select_df[nara_select_df[nara_column] == int(nara_search_term)]
-                else:
-                    nara_filtered_df = nara_select_df
+        if nara_search_term:
+            if nara_select_df[nara_column].dtype == 'object':
+                nara_filtered_df = nara_select_df[
+                    nara_select_df[nara_column].str.contains(nara_search_term, case=False, na=False)]
+            elif pd.api.types.is_numeric_dtype(nara_select_df[nara_column]):
+                search_term_cleaned = nara_search_term.replace(',', '')
+                nara_filtered_df = nara_select_df[nara_select_df[nara_column] == int(nara_search_term)]
             else:
                 nara_filtered_df = nara_select_df
+        else:
+            nara_filtered_df = nara_select_df
 
-            if nara_column in ['단가', '수량', '금액', '납품요구금액']:
-                nara_filtered_df = nara_filtered_df[
-                    (nara_filtered_df[nara_column] >= range_values[0]) & (nara_filtered_df[nara_column] <= range_values[1])
-                ]
+        if nara_column in ['단가', '수량', '금액', '납품요구금액']:
+            nara_filtered_df = nara_filtered_df[
+                (nara_filtered_df[nara_column] >= range_values[0]) & (nara_filtered_df[nara_column] <= range_values[1])
+            ]
 
-            st.write(f"{len(nara_filtered_df)} 건")
-            st.dataframe(nara_filtered_df, hide_index=True)
+        st.write(f"{len(nara_filtered_df)} 건")
+        st.dataframe(nara_filtered_df[nara_veiw_column], hide_index=True)
 
-        except Exception as e:
-            st.error(f"An error occurred: {e}")
-            st.stop()
+    except Exception as e:
+        st.error(f"An error occurred: {e}")
+        st.stop()
 
-        # # folium 지도 생성
-        # map = folium.Map(location=[36.34, 127.77], zoom_start=6)
-        #
-        # # 색상 매핑 사전 정의
-        # color_mapping = {
-        #     '남기영': 'rgba(0, 0, 255, 0.9)',  # 반투명 파랑
-        #     '야동원': 'rgba(255, 0, 0, 0.9)',  # 반투명 빨강
-        #     '서인상': 'rgba(0, 255, 0, 0.9)',  # 반투명 초록
-        # }
-        #
-        # # GeoJson 레이어 추가
-        # folium.GeoJson(
-        #     region_geodata,
-        #     style_function=lambda feature: {
-        #         'fillColor': color_mapping.get(feature['properties']['지역담당자'], 'gray'),
-        #         'color': 'black',
-        #         'weight': 2,
-        #         'dashArray': '5, 5'
-        #     },
-        #     tooltip=folium.features.GeoJsonTooltip(fields=['지역담당자'], labels=False)
-        # ).add_to(map)
-        #
-        # # 지도 출력
-        # st_folium(map, width=400, height=500)
 
-    with col2:
+    col1, space, col2 = st.columns([5, 0.1, 5])
+
+    with col1:
         nara_df['금액'] = nara_df['금액'].str.replace(',', '').astype(int)
 
-        st.title("납품 데이터 분석")
         company_keywords = ["미도플러스", "에코그라운드"]
 
         company_data = plot_company_data(nara_df, company_keywords)
+
+    with col2:
+        st.write("")
 
         # # EPSG:4326 좌표계로 변환
         # region_geodata = region_geodata.to_crs(epsg=4326)
@@ -203,14 +184,3 @@ def home_app():
         #
         # deck = pdk.Deck(layers=[layer], initial_view_state=view_state)
         # st.pydeck_chart(deck)
-
-    col3, col4, col5 = st.columns(3)
-
-    with col3:
-        st.write(" ")
-
-    with col4:
-        st.write(" ")
-
-    with col5:
-        st.write(" ")

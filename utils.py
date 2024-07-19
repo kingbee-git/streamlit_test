@@ -226,11 +226,33 @@ def load_nara_data():
     #     '납품요구수량', '납품요구금액', '수요기관지역명', '납품요구지청명'
     # ]
 
+    nara_df['수요기관지역명'] = nara_df['수요기관지역명'].replace({'강원도': '강원특별자치도', '전라북도': '전북특별자치도'}, regex=True)
+
+    nara_df['도광역시'] = nara_df['수요기관지역명'].apply(lambda x: x.split(' ')[0])
+    nara_df['시군구'] = nara_df['수요기관지역명'].apply(lambda x: x.split(' ')[1] if len(x.split(' ')) > 1 else None)
+
+    # Load the JSON data from the file
+    with open('region.json', 'r', encoding='utf-8') as file:
+        regions = json.load(file)
+
+    def get_lat_long(row):
+        if pd.isna(row['시군구']):
+            region_key = f"{row['도광역시']}/"
+        else:
+            region_key = f"{row['도광역시']}/{row['시군구']}"
+
+        if region_key in regions:
+            return regions[region_key]["lat"], regions[region_key]["long"]
+        else:
+            return None, None
+
+    nara_df[['위도', '경도']] = nara_df.apply(get_lat_long, axis=1, result_type='expand')
+
     columns_to_keep = [
-        '납품요구접수일자', '수요기관명', '납품요구건명', '업체명', '금액', '수량', '단위', '단가', '품목'
+        '납품요구접수일자', '수요기관명', '납품요구건명', '업체명', '금액', '수량', '단위', '단가', '품목', '도광역시', '시군구', '위도', '경도'
     ]
     columns_order = [
-        '납품요구접수일자', '수요기관명', '납품요구건명', '업체명', '금액', '수량', '단위', '단가', '품목'
+        '납품요구접수일자', '수요기관명', '납품요구건명', '업체명', '금액', '수량', '단위', '단가', '품목', '도광역시', '시군구', '위도', '경도'
     ]
     sort_by = ['납품요구접수일자']
 
