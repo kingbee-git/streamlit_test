@@ -251,13 +251,26 @@ def stat_app():
 
     st.markdown("---")
 
+    filtered_data['납품요구접수일자'] = filtered_data['납품요구접수일자'].dt.strftime('%Y-%m-%d')
+
     veiw_columns = [
         '납품요구접수일자', '수요기관명', '납품요구건명', '단가', '단위', '수량', '금액', '품목', '업체명'
     ]
 
-    filtered_data['납품요구접수일자'] = filtered_data['납품요구접수일자'].dt.strftime('%Y-%m-%d')
+    key_column = st.selectbox(
+        '필터링할 열 선택',
+        ['납품요구접수일자', '수요기관명', '납품요구건명', '업체명']
+    )
 
+    search_term = st.text_input(f'{key_column}에서 검색할 내용 입력', key='search_term')
+
+    if search_term:
+        filtered_data = filtered_data[filtered_data[key_column].str.contains(search_term, case=False, na=False)]
+    else:
+        filtered_data = filtered_data
+
+    # 데이터프레임 출력
     st.dataframe(
         filtered_data[veiw_columns].sort_values(by='납품요구접수일자', ascending=False),
-        hide_index=True,
+        hide_index=True
     )
