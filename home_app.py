@@ -146,7 +146,7 @@ def pydeck_company_data(nara_df, company_keywords, date_filter=None):
         ),
 
         map_style="mapbox://styles/mapbox/light-v10",
-        tooltip={"text": "{업체명}\n금액: {금액}원"}
+        tooltip={"text": "{업체명}\n{납품요구건명}\n금액: {금액}원"}
     )
 
     return deck
