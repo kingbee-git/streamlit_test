@@ -2,13 +2,13 @@
 import streamlit as st
 
 import pandas as pd
-import geopandas as gpd
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 import matplotlib.font_manager as fm
 import plotly.graph_objects as go
-import folium
-from streamlit_folium import st_folium
 import pydeck as pdk
+import datetime
+import time
 import os
 
 import utils
@@ -86,6 +86,72 @@ def plot_company_data(nara_df, company_keywords, total_amount_total=None):
     return company_data
 
 
+def pydeck_company_data(nara_df, company_keywords, date_filter=None):
+    # Filter by company keywords and date
+    pattern = '|'.join(company_keywords)
+    if date_filter:
+        if isinstance(date_filter, datetime.date):
+            date_filter = date_filter.strftime('%Y-%m-%d')
+        filtered_df = nara_df[nara_df['업체명'].str.contains(pattern, na=False) & (nara_df['납품요구접수일자'] == date_filter)]
+    else:
+        filtered_df = nara_df[nara_df['업체명'].str.contains(pattern, na=False)]
+
+    # 위도, 경도 데이터 정리
+    filtered_df = filtered_df.dropna(subset=['위도', '경도'])
+    filtered_df['위도'] = pd.to_numeric(filtered_df['위도'], errors='coerce')
+    filtered_df['경도'] = pd.to_numeric(filtered_df['경도'], errors='coerce')
+    filtered_df = filtered_df.dropna(subset=['위도', '경도'])
+
+    # 지도 중심 설정
+    midpoint = (filtered_df['위도'].mean(), filtered_df['경도'].mean())
+
+    # Color mapping
+    color_map = {
+        "주식회사 미도플러스 (MIDOPLUS Inc.)": [180, 0, 0, 160],
+        "(주)에코그라운드": [0, 0, 180, 160]
+    }
+
+    filtered_df['color'] = filtered_df['업체명'].map(color_map)
+
+    default_color = [0, 255, 0, 160]
+    filtered_df['color'] = filtered_df['color'].apply(lambda x: x if isinstance(x, list) else default_color)
+
+    # 레이어 설정
+    layer = pdk.Layer(
+        'ScatterplotLayer',
+        data=filtered_df,
+        opacity=0.3,
+        stroked=True,
+        filled=True,
+        radius_scale=10,
+        radius_min_pixels=5,
+        radius_max_pixels=60,
+        line_width_min_pixels=1,
+        get_position='[경도, 위도]',
+        get_fill_color='color',
+        get_line_color=[255,255,255],
+        get_radius='금액 / 100000',
+        pickable=True,
+        extruded=True,
+    )
+
+    # Deck 설정
+    deck = pdk.Deck(
+        layers=[layer],
+        initial_view_state=pdk.ViewState(
+            latitude=midpoint[0],
+            longitude=midpoint[1],
+            zoom=6,
+            pitch=45,
+        ),
+
+        map_style="mapbox://styles/mapbox/light-v10",
+        tooltip={"text": "{업체명}\n금액: {금액}원"}
+    )
+
+    return deck
+
+
 def home_app():
     nara_df = utils.load_nara_data()
 
@@ -140,41 +206,34 @@ def home_app():
 
         company_keywords = ["미도플러스", "에코그라운드"]
 
-        company_data = plot_company_data(nara_df, company_keywords)
+        company_data_1 = plot_company_data(nara_df, company_keywords)
 
     with col2:
-        st.write("")
+        # subheading = st.subheader("")
+        #
+        # # Initial date
+        # date = datetime.datetime.strptime(nara_df['납품요구접수일자'].min(), '%Y-%m-%d').date()
 
-        # # NaN 값을 가진 행을 제거
-        # nara_df = nara_df.dropna(subset=['위도', '경도'])
+        # Set company keywords
+        company_keywords = ["미도플러스", "에코그라운드"]
+
+        # Render the initial map
+        company_data_2 = pydeck_company_data(nara_df, company_keywords)
+        st.pydeck_chart(company_data_2)
+
+        # # Update the map and subheading each day for 120 days
+        # for i in range(120):
+        #     # Increment day by 1
+        #     date += datetime.timedelta(days=1)
+        #     current_date_str = date.strftime("%Y-%m-%d")
         #
-        # # 위도와 경도를 숫자로 변환 (문자열을 숫자로 변환할 수 없는 경우 NaN으로 처리)
-        # nara_df['위도'] = pd.to_numeric(nara_df['위도'], errors='coerce')
-        # nara_df['경도'] = pd.to_numeric(nara_df['경도'], errors='coerce')
+        #     # Update data in map layers
+        #     company_data_2 = pydeck_company_data(nara_df, company_keywords, current_date_str)
         #
-        # # NaN 값을 가진 행 제거
-        # nara_df = nara_df.dropna(subset=['위도', '경도'])
+        #     # Render the map
+        #     st.pydeck_chart(company_data_2)
         #
-        # # 데이터 타입 변환
-        # nara_df[size_col] = pd.to_numeric(nara_df[size_col], errors='coerce')
+        #     # Update the heading with current date
+        #     subheading.subheader(f"{current_date_str}")
         #
-        # # Pydeck 지도 생성
-        # layer = pdk.Layer(
-        #     'ScatterplotLayer',
-        #     data=nara_df,
-        #     get_position='[경도, 위도]',
-        #     get_color='[200, 30, 0, 160]',
-        #     get_radius=size_col,
-        #     pickable=True
-        # )
-        #
-        # view_state = pdk.ViewState(
-        #     latitude=nara_df['위도'].mean(),
-        #     longitude=nara_df['경도'].mean(),
-        #     zoom=5,
-        #     pitch=50
-        # )
-        #
-        # r = pdk.Deck(layers=[layer], initial_view_state=view_state,
-        #              tooltip={"text": "{업체명}\n" + size_col + ": {" + size_col + "}"})
-        # st.pydeck_chart(r)
+        #     time.sleep(1)
