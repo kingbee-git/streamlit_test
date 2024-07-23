@@ -19,7 +19,7 @@ def stat_app():
                 overflow-y: auto;
             }
             .stMultiSelect div {
-                font-size: 6px;
+                font-size: 18px;
             }
         </style>
     """, unsafe_allow_html=True)
@@ -62,65 +62,59 @@ def stat_app():
 
         with date_col1:
             # 멀티셀렉트: 연도
-            unique_years = pd.to_datetime(filtered_data['납품요구접수일자']).dt.year.unique()
+            unique_years = pd.to_datetime(filtered_data['납품요구접수일자'], errors='coerce').dt.year.dropna().unique()
             selected_years = st.multiselect("연도 선택:", unique_years, default=unique_years)
 
             if selected_years:
-                filtered_data = filtered_data[pd.to_datetime(filtered_data['납품요구접수일자']).dt.year.isin(selected_years)]
+                filtered_data = filtered_data[pd.to_datetime(filtered_data['납품요구접수일자'], errors='coerce').dt.year.isin(selected_years)]
 
-            else:
-                filtered_data = filtered_data
+            min_date = pd.to_datetime(filtered_data['납품요구접수일자'].min(), errors='coerce')
+            max_date = pd.to_datetime(filtered_data['납품요구접수일자'].max(), errors='coerce')
 
+        with date_col2:
             # 캘린더: 세부 기간
-            min_date = pd.to_datetime(filtered_data['납품요구접수일자'].min())
-            max_date = pd.to_datetime(filtered_data['납품요구접수일자'].max())
-
-
-        if selected_years:
-            with date_col2:
-                start_date = st.date_input("시작 날짜:", value=pd.to_datetime(f"{min(selected_years)}-01-01"))
-            with date_col3:
-                end_date = st.date_input("종료 날짜:", value=pd.to_datetime(f"{max(selected_years)}-12-31"))
-        else:
-            with date_col2:
-                start_date = st.date_input("시작 날짜:", value=min_date)
-            with date_col3:
-                end_date = st.date_input("종료 날짜:", value=max_date)
+            min_date = min_date if not pd.isna(min_date) else pd.to_datetime('2000-01-01')
+            start_date = st.date_input("시작 날짜:", value=min_date)
+        with date_col3:
+            max_date = max_date if not pd.isna(max_date) else pd.to_datetime('2100-12-31')
+            end_date = st.date_input("종료 날짜:", value=max_date)
 
         # 기간 유효성 체크
         if start_date > end_date:
-            st.error("시작 날짜는 종료 날짜보다 이전이어야 합니다.")
+            pass
 
-        filtered_data = filtered_data[
-            (filtered_data['납품요구접수일자'] >= pd.to_datetime(start_date)) &
-            (filtered_data['납품요구접수일자'] <= pd.to_datetime(end_date))
+        if start_date and end_date:
+            filtered_data = filtered_data[
+                (pd.to_datetime(filtered_data['납품요구접수일자'], errors='coerce') >= pd.to_datetime(start_date)) &
+                (pd.to_datetime(filtered_data['납품요구접수일자'], errors='coerce') <= pd.to_datetime(end_date))
             ]
-    with space:
-        st.write("")
 
     with col2:
         # 슬라이더 추가: 단가, 수량, 금액
-        min_price = float(filtered_data['단가'].min())
-        max_price = float(filtered_data['단가'].max())
-        price_range = (min_price, max_price) if min_price < max_price else (0.0, max_price)
+        if not filtered_data.empty:
+            min_price = float(filtered_data['단가'].min()) if not filtered_data['단가'].isna().all() else 0.0
+            max_price = float(filtered_data['단가'].max()) if not filtered_data['단가'].isna().all() else 0.0
+            price_range = (min_price, max_price) if min_price < max_price else (0.0, max_price)
 
-        min_quantity = float(filtered_data['수량'].min())
-        max_quantity = float(filtered_data['수량'].max())
-        quantity_range = (min_quantity, max_quantity) if min_quantity < max_quantity else (0.0, max_quantity)
+            min_quantity = float(filtered_data['수량'].min()) if not filtered_data['수량'].isna().all() else 0.0
+            max_quantity = float(filtered_data['수량'].max()) if not filtered_data['수량'].isna().all() else 0.0
+            quantity_range = (min_quantity, max_quantity) if min_quantity < max_quantity else (0.0, max_quantity)
 
-        min_amount = float(filtered_data['금액'].min())
-        max_amount = float(filtered_data['금액'].max())
-        amount_range = (min_amount, max_amount) if min_amount < max_amount else (0.0, max_amount)
+            min_amount = float(filtered_data['금액'].min()) if not filtered_data['금액'].isna().all() else 0.0
+            max_amount = float(filtered_data['금액'].max()) if not filtered_data['금액'].isna().all() else 0.0
+            amount_range = (min_amount, max_amount) if min_amount < max_amount else (0.0, max_amount)
 
-        min_price, max_price = st.slider("단가 범위 선택:", min_price, max_price, price_range)
-        min_quantity, max_quantity = st.slider("수량 범위 선택:", min_quantity, max_quantity, quantity_range)
-        min_amount, max_amount = st.slider("금액 범위 선택:", min_amount, max_amount, amount_range)
+            min_price, max_price = st.slider("단가 범위 선택:", min_price, max_price, price_range)
+            min_quantity, max_quantity = st.slider("수량 범위 선택:", min_quantity, max_quantity, quantity_range)
+            min_amount, max_amount = st.slider("금액 범위 선택:", min_amount, max_amount, amount_range)
 
-        filtered_data = filtered_data[
-            (filtered_data['단가'] >= min_price) & (filtered_data['단가'] <= max_price) &
-            (filtered_data['수량'] >= min_quantity) & (filtered_data['수량'] <= max_quantity) &
-            (filtered_data['금액'] >= min_amount) & (filtered_data['금액'] <= max_amount)
-        ]
+            filtered_data = filtered_data[
+                (filtered_data['단가'] >= min_price) & (filtered_data['단가'] <= max_price) &
+                (filtered_data['수량'] >= min_quantity) & (filtered_data['수량'] <= max_quantity) &
+                (filtered_data['금액'] >= min_amount) & (filtered_data['금액'] <= max_amount)
+            ]
+        else:
+            pass
 
         # st.markdown("---")
         # st.markdown(
@@ -132,49 +126,54 @@ def stat_app():
 
     kpi1, kpi2, kpi3 = st.columns(3)
 
-    kpi1.metric(
-        label="단가 평균",
-        value=f"₩{round(filtered_data['단가'].mean(), 2):,}",
-        delta=f"₩{round(g2b_data['단가'].mean(), 2):,}",
-        delta_color="inverse" if round(filtered_data['단가'].mean(), 2) < round(g2b_data['단가'].mean(), 2) else "normal"
-    )
+    if not filtered_data.empty:
+        avg_price = filtered_data['단가'].mean()
+        avg_quantity = filtered_data['수량'].mean()
+        avg_amount = filtered_data['금액'].mean()
 
-    kpi2.metric(
-        label="수량 평균(m²)",
-        value=f"{round(filtered_data['수량'].mean()):,}",
-        delta=f"{round(g2b_data['수량'].mean()):,}",
-        delta_color="inverse" if round(filtered_data['수량'].mean(), 2) < round(g2b_data['수량'].mean(), 2) else "normal"
-    )
+        kpi1.metric(
+            label="단가 평균",
+            value=f"₩{round(avg_price, 2):,}" if not pd.isna(avg_price) else "데이터 없음",
+            delta=f"₩{round(g2b_data['단가'].mean(), 2):,}" if not pd.isna(g2b_data['단가'].mean()) else "데이터 없음",
+            delta_color="inverse" if avg_price < g2b_data['단가'].mean() else "normal"
+        )
 
-    kpi3.metric(
-        label="금액 평균",
-        value=f"₩{round(filtered_data['금액'].mean(), 2):,}",
-        delta=f"₩{round(g2b_data['금액'].mean(), 2):,}",
-        delta_color="inverse" if round(filtered_data['금액'].mean(), 2) < round(g2b_data['금액'].mean(), 2) else "normal"
-    )
+        kpi2.metric(
+            label="수량 평균(m²)",
+            value=f"{round(avg_quantity, 2):,}" if not pd.isna(avg_quantity) else "데이터 없음",
+            delta=f"{round(g2b_data['수량'].mean(), 2):,}" if not pd.isna(g2b_data['수량'].mean()) else "데이터 없음",
+            delta_color="inverse" if avg_quantity < g2b_data['수량'].mean() else "normal"
+        )
 
-    kpi4, kpi5, kpi6 = st.columns(3)
+        kpi3.metric(
+            label="금액 평균",
+            value=f"₩{round(avg_amount, 2):,}" if not pd.isna(avg_amount) else "데이터 없음",
+            delta=f"₩{round(g2b_data['금액'].mean(), 2):,}" if not pd.isna(g2b_data['금액'].mean()) else "데이터 없음",
+            delta_color="inverse" if avg_amount < g2b_data['금액'].mean() else "normal"
+        )
 
-    kpi4.metric(
-        label="거래 건",
-        value=f"{filtered_data['단가'].count():,}",  # 거래 건 수는 금액 표시 없이 간단히 표시
-        delta=f"{g2b_data['단가'].count():,}",
-        delta_color="inverse" if filtered_data['단가'].count() < g2b_data['단가'].count() else "normal"
-    )
+        kpi4, kpi5, kpi6 = st.columns(3)
 
-    kpi5.metric(
-        label="수량 합 (m²)",
-        value=f"{round(filtered_data['수량'].sum()):,}",
-        delta=f"{round(g2b_data['수량'].sum()):,}",
-        delta_color="inverse" if round(filtered_data['수량'].sum(), 2) < round(g2b_data['수량'].sum(), 2) else "normal"
-    )
+        kpi4.metric(
+            label="거래 건",
+            value=f"{filtered_data['단가'].count():,}",
+            delta=f"{g2b_data['단가'].count():,}",
+            delta_color="inverse" if filtered_data['단가'].count() < g2b_data['단가'].count() else "normal"
+        )
 
-    kpi6.metric(
-        label="금액 합",
-        value=f"₩{round(filtered_data['금액'].sum(), 2):,}",
-        delta=f"₩{round(g2b_data['금액'].sum(), 2):,}",
-        delta_color="inverse" if round(filtered_data['금액'].sum(), 2) < round(g2b_data['금액'].sum(), 2) else "normal"
-    )
+        kpi5.metric(
+            label="수량 합 (m²)",
+            value=f"{round(filtered_data['수량'].sum(), 2):,}" if not pd.isna(filtered_data['수량'].sum()) else "데이터 없음",
+            delta=f"{round(g2b_data['수량'].sum(), 2):,}" if not pd.isna(g2b_data['수량'].sum()) else "데이터 없음",
+            delta_color="inverse" if filtered_data['수량'].sum() < g2b_data['수량'].sum() else "normal"
+        )
+
+        kpi6.metric(
+            label="금액 합",
+            value=f"₩{round(filtered_data['금액'].sum(), 2):,}" if not pd.isna(filtered_data['금액'].sum()) else "데이터 없음",
+            delta=f"₩{round(g2b_data['금액'].sum(), 2):,}" if not pd.isna(g2b_data['금액'].sum()) else "데이터 없음",
+            delta_color="inverse" if filtered_data['금액'].sum() < g2b_data['금액'].sum() else "normal"
+        )
 
     st.markdown("---")
 
@@ -191,7 +190,18 @@ def stat_app():
 
     with col4:
         # 상위 N개 선택
-        top_n = st.sidebar.slider("상위 몇 개의 회사", min_value=1, max_value=len(filtered_data['업체명'].unique()), value=len(filtered_data['업체명'].unique()))
+        unique_companies_count = len(filtered_data['업체명'].unique())
+        if unique_companies_count > 1:
+            top_n = st.sidebar.slider(
+                "상위 N개 업체 선택",
+                min_value=1,
+                max_value=max(1, unique_companies_count),
+                value=min(unique_companies_count, 10)
+            )
+        elif unique_companies_count == 1:
+            top_n = 1
+        else:
+            top_n = 1
 
     # 차트 표시
     fig_col1, space, fig_col2 = st.columns([5, 0.1, 5])
