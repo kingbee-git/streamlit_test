@@ -347,7 +347,6 @@ def load_news_data():
 
     return news_df_yesterday, news_df_today
 
-
 @st.cache_data(ttl=600)
 def load_listup_data():
     remain_dep_edu_df = get_dataframe_from_bigquery('mido_test', 'remain_dep_edu_df')
